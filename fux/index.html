@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FUX · Build Guides</title>
+<meta name="description" content="FUX — tactical step-by-step build guides. One action per step.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/fux.css">
+<style>.hide{display:none!important}</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <h1 class="brand">FU<span>X</span></h1>
+    <div class="tag">BUILD GUIDES · ONE STEP AT A TIME</div>
+    <nav class="nav-links">
+      <a class="on" href="index.html">Guides</a>
+      <a href="../">Pullerup</a>
+      <a href="../food/">Food</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <div class="hero">
+    <h2>What are you building?</h2>
+    <p>Search the library. Each guide is one action per step, with diagrams, parts checklists, and progress that saves on this phone.</p>
+    <div class="search">
+      <input id="q" type="search" placeholder="door alarm, arduino, solder…" autocomplete="off" enterkeyhint="search">
+      <button type="button" id="go">Search</button>
+    </div>
+    <div class="meta-row" id="meta"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty hide" id="empty">
+    <b>No guide yet</b>
+    <p>I don't have “<span data-q></span>” in the library. Send it to Kaserin and we'll write the steps.</p>
+    <button class="btn primary" type="button" id="askk">Send to Kaserin</button>
+  </div>
+  <div class="foot">
+    FUX sits next to <a href="../">Pullerup</a>. Price parts there. Build them here.
+  </div>
+</main>
+<script src="guides/catalog.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

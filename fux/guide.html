@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FUX · Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/fux.css">
+</head>
+<body>
+<header>
+  <div class="hd">
+    <h1 class="brand"><a href="index.html" style="color:inherit">FU<span>X</span></a></h1>
+    <div class="tag">GUIDE</div>
+    <nav class="nav-links">
+      <a href="index.html">All guides</a>
+      <a id="pullerup" href="../" style="display:none">Price parts on Pullerup</a>
+      <a href="../">Pullerup</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <div class="guide-top">
+    <h1 id="gtitle">Loading…</h1>
+    <p class="sum" id="gsum"></p>
+    <div class="chips" id="chips"></div>
+    <div class="progress">
+      <div class="bar"><i id="bar"></i></div>
+      <div class="pct" id="pct">0%</div>
+      <button class="btn ghost danger" type="button" id="reset">Reset progress</button>
+    </div>
+    <nav class="toc" id="toc"></nav>
+  </div>
+  <div id="body"></div>
+  <div class="foot">
+    Progress saves in this browser (localStorage). Add a guide: drop <span class="mono">guides/&lt;id&gt;.js</span> and list it in <span class="mono">guides/catalog.js</span>.
+  </div>
+</main>
+<script src="js/guide.js"></script>
+</body>
+</html>
