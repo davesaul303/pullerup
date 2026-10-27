@@ -175,19 +175,19 @@ header{
 }
 
 
-/* Diagram zoom + tips */
+/* Diagram zoom + Farowt tips */
 .diagram{position:relative;cursor:zoom-in}
-.diagram.is-zoomed{cursor:zoom-out}
-.fux-tip{pointer-events:all !important; -webkit-tap-highlight-color:transparent}
-.tip-bubble{
-  position:fixed;z-index:1000;max-width:min(320px,86vw);padding:12px 14px;border-radius:4px;
-  background:#0c110c;border:1px solid var(--lime);box-shadow:0 8px 28px rgba(0,0,0,.55);
-  color:var(--tx);font:13px/1.45 var(--sans);pointer-events:none;
+.fux-tip{pointer-events:all !important;-webkit-tap-highlight-color:transparent;cursor:help}
+.warn-inline{
+  margin:8px 0 0;padding:8px 10px;border:1px solid rgba(230,57,45,.45);border-left:3px solid var(--red);
+  background:rgba(230,57,45,.08);color:var(--tx);font-size:13px;border-radius:2px;
 }
-.tip-bubble .tn{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime);margin:0 0 6px}
-.tip-bubble .td{margin:0 0 6px;color:var(--tx)}
-.tip-bubble .tj{margin:0;color:var(--mu);font-size:12px}
-.tip-bubble .tj b{color:var(--red2);font:700 10px var(--mono);letter-spacing:.1em}
+.warn-inline b{font:700 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:2px}
+.hole-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.hole-table th,.hole-table td{border-top:1px solid var(--ln);padding:8px 6px;text-align:left;font-family:var(--mono)}
+.hole-table th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.hole-table td:first-child{color:var(--lime)}
+.tip-hint{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:6px 0 0}
 .lightbox{
   position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;
   padding:12px;opacity:0;pointer-events:none;transition:opacity .15s;
@@ -201,13 +201,74 @@ header{
   position:fixed;top:10px;right:12px;z-index:901;background:var(--lime);color:#050705;border:0;
   font:700 11px var(--mono);letter-spacing:.12em;padding:10px 12px;border-radius:2px;cursor:pointer;
 }
-.warn-inline{
-  margin:8px 0 0;padding:8px 10px;border:1px solid rgba(230,57,45,.45);border-left:3px solid var(--red);
-  background:rgba(230,57,45,.08);color:var(--tx);font-size:13px;border-radius:2px;
+
+/* Farowt — cartoon resistor helper */
+#farowt{
+  position:fixed;right:10px;bottom:10px;z-index:950;width:min(340px,92vw);
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;
+  pointer-events:none;opacity:0;transform:translateY(24px) scale(.86);
+  transition:opacity .28s ease, transform .35s cubic-bezier(.2,1.4,.4,1);
 }
-.warn-inline b{font:700 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:2px}
-.hole-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
-.hole-table th,.hole-table td{border-top:1px solid var(--ln);padding:8px 6px;text-align:left;font-family:var(--mono)}
-.hole-table th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
-.hole-table td:first-child{color:var(--lime)}
-.tip-hint{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:6px 0 0}
+#farowt.on{opacity:1;transform:none;pointer-events:auto}
+#farowt .bubble{
+  position:relative;background:var(--pn);border:1px solid var(--lime);border-radius:12px;
+  padding:12px 14px;color:var(--tx);font:14px/1.45 var(--sans);
+  box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:100%;
+}
+#farowt .bubble:after{
+  content:"";position:absolute;right:36px;bottom:-7px;width:12px;height:12px;
+  background:var(--pn);border-right:1px solid var(--lime);border-bottom:1px solid var(--lime);
+  transform:rotate(45deg);
+}
+#farowt .tn{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime);margin:0 0 6px}
+#farowt .td{margin:0 0 6px}
+#farowt .tj{margin:0;color:var(--mu);font-size:12px}
+#farowt .tj b{color:var(--red2);font:700 10px var(--mono);letter-spacing:.08em}
+#farowt .row{display:flex;gap:10px;align-items:flex-end;justify-content:flex-end;width:100%}
+#farowt .who{font:700 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mu);text-align:right;margin:0 4px 2px}
+#farowt .x{
+  pointer-events:auto;background:transparent;border:1px solid var(--ln2);color:var(--mu);
+  font:700 10px var(--mono);letter-spacing:.1em;padding:6px 8px;border-radius:2px;cursor:pointer;align-self:flex-start;
+}
+#farowt .x:hover{border-color:var(--lime);color:var(--lime)}
+#farowt-svg{width:108px;height:96px;overflow:visible;filter:drop-shadow(0 4px 8px rgba(184,255,60,.18));pointer-events:auto;cursor:pointer}
+#farowt-svg .body{transform-origin:50% 60%}
+#farowt-svg .eye{transform-origin:50% 50%}
+#farowt-svg .armL,#farowt-svg .armR{transform-origin:0 0}
+#farowt-svg .legL,#farowt-svg .legR{transform-origin:50% 0}
+#farowt-svg .band{transform-origin:50% 50%}
+#farowt-svg .zap{opacity:0}
+
+/* animation classes mixed randomly */
+#farowt.a-in #farowt-svg .body{animation:f-hop .55s ease-out}
+#farowt.a-blink #farowt-svg .eye{animation:f-blink .18s 2}
+#farowt.a-wiggle #farowt-svg .body{animation:f-wiggle .45s 3 ease-in-out}
+#farowt.a-bounce #farowt-svg .body{animation:f-bounce .4s 3}
+#farowt.a-wave #farowt-svg .armR{animation:f-wave .35s 4 ease-in-out}
+#farowt.a-glow #farowt-svg .band{animation:f-glow .5s 4 alternate}
+#farowt.a-zap #farowt-svg .zap{animation:f-zap .55s 1 linear}
+#farowt.a-think #farowt-svg .body{animation:f-think 1.2s ease-in-out}
+#farowt.a-think #farowt-svg .armL{animation:f-chin .6s 2 ease-in-out}
+#farowt.a-dance #farowt-svg .legL{animation:f-tap .22s 6}
+#farowt.a-dance #farowt-svg .legR{animation:f-tap .22s 6 .11s}
+#farowt.a-sizzle #farowt-svg .body{animation:f-sizzle .15s 8}
+#farowt.a-sizzle #farowt-svg .band{animation:f-glow .2s 8}
+
+@keyframes f-hop{0%{transform:translateY(18px) scale(.9)}55%{transform:translateY(-10px) scale(1.06,.94)}100%{transform:none}}
+@keyframes f-blink{50%{transform:scaleY(.08)}}
+@keyframes f-wiggle{25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+@keyframes f-bounce{50%{transform:translateY(-8px)}}
+@keyframes f-wave{50%{transform:rotate(-55deg)}}
+@keyframes f-glow{to{filter:brightness(1.8) drop-shadow(0 0 4px #b8ff3c)}}
+@keyframes f-zap{0%{opacity:0}20%,70%{opacity:1}100%{opacity:0}}
+@keyframes f-think{50%{transform:rotate(-6deg) translateY(-2px)}}
+@keyframes f-chin{50%{transform:rotate(25deg)}}
+@keyframes f-tap{50%{transform:translateY(3px) rotate(-6deg)}}
+@keyframes f-sizzle{50%{transform:translate(1px,-1px)}}
+
+@media (prefers-reduced-motion:reduce){
+  #farowt{transition:opacity .15s}
+  #farowt.on{transform:none}
+  #farowt-svg *{animation:none!important}
+  #farowt .bubble:after{transition:none}
+}

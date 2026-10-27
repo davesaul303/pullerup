@@ -4,13 +4,11 @@ Step-by-step build guides (tactical lime / black / red). Live at `https://davesa
 
 ## Add a guide
 
-1. Copy `guides/door-alarm-shield.js` pattern as `guides/<id>.js` setting `window.FUX_GUIDE`.
-2. Add a card to `guides/catalog.js`.
+1. Create `guides/<id>.js` with `window.FUX_GUIDE = { id, title, summary, tips, diagrams, sections, ... }`.
+2. List it in `guides/catalog.js`.
 3. Open `guide.html?id=<id>`.
 
-### Tips (reusable)
-
-In the guide object:
+### Farowt tips (reusable)
 
 ```js
 tips: {
@@ -22,11 +20,11 @@ tips: {
 }
 ```
 
-In SVG diagrams, mark hotspots:
+SVG hotspot:
 
 ```html
 <rect class="fux-tip" data-tip="hcsr04" x="..." y="..." width="..." height="..."
-  fill="#b8ff3c" fill-opacity="0" style="cursor:help"/>
+  fill="#b8ff3c" fill-opacity="0"/>
 ```
 
-`guide.js` binds: desktop hover 3s, phone press-hold ~1s or tap. Tap empty diagram area to enlarge.
+**Double right-click** a hotspot (context menu suppressed there only). Phones: **double-tap** or **long-press ~1s**. Farowt — an animated cartoon resistor — pops up with a speech bubble and random idle/talk moves (blink, wiggle, bounce, wave, band glow, zap, think, tap-dance, sizzle). Respects `prefers-reduced-motion`.

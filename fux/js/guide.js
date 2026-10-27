@@ -1,6 +1,7 @@
 (function(){
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function storageKey(id){ return 'fux-progress:' + id; }
   function loadProgress(id){
@@ -10,16 +11,15 @@
 
   function diagramHtml(guide, key){
     if(!key || !guide.diagrams || !guide.diagrams[key]) return '';
-    return `<div class="diagram" data-diagram="${esc(key)}">${guide.diagrams[key]}<div class="tip-hint">Hold a glowing part · tap diagram to enlarge</div></div>`;
+    return `<div class="diagram" data-diagram="${esc(key)}">${guide.diagrams[key]}`+
+      `<div class="tip-hint">Double right-click a part · phone: double-tap or hold · tap empty area to enlarge</div></div>`;
   }
 
   function tableHtml(rows){
     if(!rows || !rows.length) return '';
-    const head = rows[0];
-    const body = rows.slice(1);
+    const head = rows[0], body = rows.slice(1);
     return `<table class="hole-table"><thead><tr>${head.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>`+
-      body.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')+
-      `</tbody></table>`;
+      body.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')+`</tbody></table>`;
   }
 
   function renderProgress(guide, map){
@@ -76,113 +76,195 @@
     if(!svg) return;
     inner.innerHTML = svg.outerHTML;
     lb.classList.add('on');
-    // re-bind tips inside lightbox
-    bindTips(inner, window.FUX_GUIDE && window.FUX_GUIDE.tips);
+    bindFarowtTargets(inner, window.FUX_GUIDE && window.FUX_GUIDE.tips);
   }
   function bindLightbox(root){
     root.querySelectorAll('.diagram').forEach(d => {
       d.addEventListener('click', e => {
-        // ignore if clicking intentionally for tip on small targets — still allow enlarge on background
-        if(e.target.closest('.fux-tip') && e.detail){ /* let tip handler run */ }
-        // only enlarge if not a tip long-press; simple: tap empty diagram chrome / svg bg
-        if(e.target.classList && e.target.classList.contains('fux-tip')) return;
+        if(e.target.closest('.fux-tip')) return;
         openLightbox(d);
       });
     });
   }
 
-  /* ---- Reusable tip system ---- */
-  function ensureTipBubble(){
-    let b = document.getElementById('fux-tip');
-    if(b) return b;
-    b = document.createElement('div');
-    b.id = 'fux-tip';
-    b.className = 'tip-bubble';
-    b.style.display = 'none';
-    document.body.appendChild(b);
-    return b;
+  /* ---- Farowt (cartoon resistor helper) ---- */
+  const IDLE_ANIMS = ['a-blink','a-wiggle','a-bounce','a-wave','a-glow','a-think','a-dance','a-sizzle'];
+  const TALK_ANIMS = ['a-zap','a-wave','a-glow','a-think','a-bounce'];
+  let idleTimer = null;
+  let farowtTips = {};
+
+  function farowtSvg(){
+    return `<svg id="farowt-svg" viewBox="0 0 120 100" aria-label="Farowt the resistor helper" role="img">
+      <defs>
+        <linearGradient id="fb" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#e8d9b0"/><stop offset=".5" stop-color="#c2b280"/><stop offset="1" stop-color="#9a8a5a"/>
+        </linearGradient>
+        <radialGradient id="eye" cx="35%" cy="35%" r="65%">
+          <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dfe8d8"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="60" cy="90" rx="28" ry="4" fill="#000" opacity=".25"/>
+      <g class="body">
+        <!-- wire legs -->
+        <g class="legL" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
+          <path d="M48 72 L42 88"/><path d="M42 88 L36 88"/>
+        </g>
+        <g class="legR" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
+          <path d="M72 72 L78 88"/><path d="M78 88 L84 88"/>
+        </g>
+        <!-- arms -->
+        <g class="armL" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
+          <path d="M28 48 L14 40"/><path d="M14 40 L8 46"/>
+        </g>
+        <g class="armR" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
+          <path d="M92 48 L106 38"/><path d="M106 38 L112 32"/>
+        </g>
+        <!-- lead wires into body -->
+        <path d="M20 55 H32" stroke="#9e9e9e" stroke-width="4" stroke-linecap="round"/>
+        <path d="M100 55 H88" stroke="#9e9e9e" stroke-width="4" stroke-linecap="round"/>
+        <!-- tan resistor body -->
+        <rect x="32" y="38" width="56" height="34" rx="10" fill="url(#fb)" stroke="#6d5c3a" stroke-width="1.5"/>
+        <ellipse cx="42" cy="48" rx="8" ry="4" fill="#fff" opacity=".25"/>
+        <!-- color bands -->
+        <rect class="band" x="44" y="38" width="6" height="34" fill="#c62828"/>
+        <rect class="band" x="54" y="38" width="6" height="34" fill="#c62828"/>
+        <rect class="band" x="64" y="38" width="6" height="34" fill="#5d4037"/>
+        <rect class="band" x="74" y="38" width="5" height="34" fill="#f9a825"/>
+        <!-- googly eyes -->
+        <g class="eye">
+          <circle cx="48" cy="52" r="7" fill="url(#eye)" stroke="#333"/>
+          <circle cx="50" cy="53" r="3" fill="#111"/>
+          <circle cx="51.5" cy="51.5" r="1.1" fill="#fff"/>
+          <rect class="lid" x="41" y="45" width="14" height="14" fill="url(#fb)" opacity="0"/>
+        </g>
+        <g class="eye">
+          <circle cx="68" cy="52" r="7" fill="url(#eye)" stroke="#333"/>
+          <circle cx="70" cy="53" r="3" fill="#111"/>
+          <circle cx="71.5" cy="51.5" r="1.1" fill="#fff"/>
+          <rect class="lid" x="61" y="45" width="14" height="14" fill="url(#fb)" opacity="0"/>
+        </g>
+        <!-- smile -->
+        <path d="M52 64 Q60 70 68 64" fill="none" stroke="#5d4037" stroke-width="2" stroke-linecap="round"/>
+        <!-- zap spark when explaining -->
+        <g class="zap" stroke="#b8ff3c" stroke-width="2" fill="none" stroke-linecap="round">
+          <path d="M96 28 L102 20 L98 20 L106 10"/>
+          <path d="M18 30 L12 22"/>
+          <circle cx="108" cy="12" r="2" fill="#b8ff3c"/>
+        </g>
+      </g>
+    </svg>`;
   }
-  function placeBubble(b, clientX, clientY){
-    b.style.display = 'block';
-    const pad = 12;
-    let x = clientX + 14, y = clientY + 14;
-    const r = b.getBoundingClientRect();
-    if(x + r.width > window.innerWidth - pad) x = clientX - r.width - 10;
-    if(y + r.height > window.innerHeight - pad) y = clientY - r.height - 10;
-    if(x < pad) x = pad;
-    if(y < pad) y = pad;
-    b.style.left = x + 'px';
-    b.style.top = y + 'px';
+
+  function ensureFarowt(){
+    let el = document.getElementById('farowt');
+    if(el) return el;
+    el = document.createElement('div');
+    el.id = 'farowt';
+    el.setAttribute('aria-live','polite');
+    el.innerHTML = `<div class="bubble"><div class="tn" id="fw-tn"></div><p class="td" id="fw-td"></p><p class="tj" id="fw-tj"></p></div>
+      <div class="row"><button type="button" class="x" id="fw-x">CLOSE</button><div><div class="who">Farowt</div>${farowtSvg()}</div></div>`;
+    document.body.appendChild(el);
+    $('fw-x').onclick = hideFarowt;
+    el.querySelector('#farowt-svg').addEventListener('click', () => playAnim(pick(IDLE_ANIMS)));
+    return el;
   }
-  function showTip(tips, id, x, y){
+
+  function clearAnimClasses(el){
+    [...el.classList].forEach(c => { if(c.startsWith('a-')) el.classList.remove(c); });
+  }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function playAnim(name){
+    if(reduceMotion()) return;
+    const el = ensureFarowt();
+    clearAnimClasses(el);
+    // force reflow
+    void el.offsetWidth;
+    el.classList.add(name);
+  }
+  function scheduleIdle(){
+    clearTimeout(idleTimer);
+    if(reduceMotion()) return;
+    idleTimer = setTimeout(() => {
+      const el = document.getElementById('farowt');
+      if(el && el.classList.contains('on')){
+        // long idle → sizzle a bit more often
+        playAnim(Math.random() < .25 ? 'a-sizzle' : pick(IDLE_ANIMS));
+        scheduleIdle();
+      }
+    }, 2800 + Math.random()*3200);
+  }
+
+  function showFarowt(tips, id){
     const t = tips && tips[id];
     if(!t) return;
-    const b = ensureTipBubble();
-    b.innerHTML = `<div class="tn">${esc(t.name||id)}</div>`+
-      `<p class="td">${esc(t.does||'')}</p>`+
-      `<p class="tj"><b>IN THIS BUILD</b> — ${esc(t.job||'')}</p>`;
-    placeBubble(b, x, y);
+    farowtTips = tips;
+    const el = ensureFarowt();
+    $('fw-tn').textContent = t.name || id;
+    $('fw-td').textContent = t.does || '';
+    $('fw-tj').innerHTML = `<b>IN THIS BUILD</b> — ${esc(t.job||'')}`;
+    el.classList.add('on');
+    clearAnimClasses(el);
+    if(!reduceMotion()){
+      void el.offsetWidth;
+      el.classList.add('a-in');
+      setTimeout(() => playAnim(pick(TALK_ANIMS)), 500);
+    }
+    scheduleIdle();
   }
-  function hideTip(){
-    const b = document.getElementById('fux-tip');
-    if(b) b.style.display = 'none';
+  function hideFarowt(){
+    const el = document.getElementById('farowt');
+    if(!el) return;
+    el.classList.remove('on');
+    clearAnimClasses(el);
+    clearTimeout(idleTimer);
   }
 
-  function bindTips(root, tips){
+  function bindFarowtTargets(root, tips){
     if(!tips) return;
-    const nodes = root.querySelectorAll('.fux-tip[data-tip]');
-    nodes.forEach(el => {
-      if(el._fuxTipBound) return;
-      el._fuxTipBound = true;
-      let hoverTimer=null, holdTimer=null, holding=false;
+    root.querySelectorAll('.fux-tip[data-tip]').forEach(el => {
+      if(el._fuxFarowt) return;
+      el._fuxFarowt = true;
+      let lastTap = 0, holdTimer = null, held = false;
 
-      // Desktop: hover 3s
-      el.addEventListener('pointerenter', e => {
-        if(e.pointerType === 'touch') return;
-        clearTimeout(hoverTimer);
-        const id = el.getAttribute('data-tip');
-        const x = e.clientX, y = e.clientY;
-        hoverTimer = setTimeout(() => showTip(tips, id, x, y), 3000);
-      });
-      el.addEventListener('pointerleave', e => {
-        if(e.pointerType === 'touch') return;
-        clearTimeout(hoverTimer);
-        hideTip();
-      });
-      el.addEventListener('pointermove', e => {
-        if(e.pointerType === 'touch') return;
-        const b = document.getElementById('fux-tip');
-        if(b && b.style.display==='block') placeBubble(b, e.clientX, e.clientY);
+      // Suppress browser context menu ONLY on tip hotspots
+      el.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        e.stopPropagation();
       });
 
-      // Touch / press-hold ~1s, or tap to toggle
+      // Desktop: double right-click
+      el.addEventListener('mousedown', e => {
+        if(e.button !== 2) return;
+        e.preventDefault();
+        if(e.detail >= 2){
+          showFarowt(tips, el.getAttribute('data-tip'));
+        }
+      });
+
+      // Touch: double-tap OR long-press ~1s
       el.addEventListener('pointerdown', e => {
-        const id = el.getAttribute('data-tip');
-        holding = false;
+        if(e.pointerType === 'mouse' && e.button === 2) return;
+        held = false;
         clearTimeout(holdTimer);
         holdTimer = setTimeout(() => {
-          holding = true;
-          showTip(tips, id, e.clientX, e.clientY);
+          held = true;
+          showFarowt(tips, el.getAttribute('data-tip'));
         }, 1000);
       });
       el.addEventListener('pointerup', e => {
         clearTimeout(holdTimer);
-        const id = el.getAttribute('data-tip');
-        if(!holding && e.pointerType === 'touch'){
-          // tap toggle
-          const b = document.getElementById('fux-tip');
-          const open = b && b.style.display==='block';
-          if(open) hideTip();
-          else showTip(tips, id, e.clientX, e.clientY);
+        if(e.pointerType === 'mouse' && e.button === 2) return;
+        if(held){ e.preventDefault(); e.stopPropagation(); return; }
+        const now = Date.now();
+        if(now - lastTap < 350){
+          showFarowt(tips, el.getAttribute('data-tip'));
+          lastTap = 0;
           e.preventDefault();
           e.stopPropagation();
-        }
+        } else lastTap = now;
       });
-      el.addEventListener('pointercancel', () => { clearTimeout(holdTimer); });
-      el.addEventListener('click', e => {
-        // prevent diagram lightbox when interacting with tip target
-        e.stopPropagation();
-      });
+      el.addEventListener('pointercancel', () => clearTimeout(holdTimer));
+      el.addEventListener('click', e => { e.stopPropagation(); });
     });
   }
 
@@ -275,11 +357,10 @@
     });
 
     $('body').innerHTML = html;
+    // update beforeYouStart copy for Farowt if present
     bindChecks(guide);
     bindLightbox($('body'));
-    bindTips($('body'), guide.tips || {});
-    // hide tip when scrolling
-    window.addEventListener('scroll', hideTip, {passive:true});
+    bindFarowtTargets($('body'), guide.tips || {});
 
     $('reset').onclick = () => {
       if(!confirm('Clear all progress for this guide?')) return;
@@ -295,14 +376,18 @@
     s.onload = () => {
       const guide = window.FUX_GUIDE;
       if(!guide || guide.id !== id){ showMissing(id); return; }
+      // Patch intro hint for Farowt
+      if(guide.beforeYouStart && /Hold diagrams|press-and-hold|hover/i.test(guide.beforeYouStart)){
+        guide.beforeYouStart = "Your code is already on the Elegoo. Unplug USB before moving wires. Double right-click any marked part (phone: double-tap or press-and-hold) and Farowt the resistor will explain it. Tap empty diagram space to enlarge.";
+      }
       renderGuide(guide);
     };
     s.onerror = () => showMissing(id);
     document.head.appendChild(s);
   }
 
-  // Expose tip binder for future guides / lightbox
-  window.FUX_bindTips = bindTips;
+  window.FUX_bindFarowt = bindFarowtTargets;
+  window.FUX_showFarowt = showFarowt;
 
   window.addEventListener('DOMContentLoaded', () => {
     const id = new URLSearchParams(location.search).get('id') || 'door-alarm-shield';

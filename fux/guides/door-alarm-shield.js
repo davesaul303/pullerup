@@ -7,7 +7,7 @@ window.FUX_GUIDE = {
   "time": "2–4 hr",
   "partsCount": 14,
   "pullerup": null,
-  "beforeYouStart": "Your code is already on the Elegoo. Unplug USB before moving wires. Hold diagrams: press-and-hold a part (~1s) or hover 3s on desktop to see what it does. Tap a diagram to enlarge.",
+  "beforeYouStart": "Your code is already on the Elegoo. Unplug USB before moving wires. Double right-click any marked part (phone: double-tap or press-and-hold) and Farowt the resistor will explain it. Tap empty diagram space to enlarge.",
   "tips": {
     "usb": {
       "name": "USB-B port",
