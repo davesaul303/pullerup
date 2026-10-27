@@ -173,3 +173,41 @@ header{
   .step-n{width:28px;height:28px;font-size:11px}
   .guide-top h1{font-size:18px}
 }
+
+
+/* Diagram zoom + tips */
+.diagram{position:relative;cursor:zoom-in}
+.diagram.is-zoomed{cursor:zoom-out}
+.fux-tip{pointer-events:all !important; -webkit-tap-highlight-color:transparent}
+.tip-bubble{
+  position:fixed;z-index:1000;max-width:min(320px,86vw);padding:12px 14px;border-radius:4px;
+  background:#0c110c;border:1px solid var(--lime);box-shadow:0 8px 28px rgba(0,0,0,.55);
+  color:var(--tx);font:13px/1.45 var(--sans);pointer-events:none;
+}
+.tip-bubble .tn{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime);margin:0 0 6px}
+.tip-bubble .td{margin:0 0 6px;color:var(--tx)}
+.tip-bubble .tj{margin:0;color:var(--mu);font-size:12px}
+.tip-bubble .tj b{color:var(--red2);font:700 10px var(--mono);letter-spacing:.1em}
+.lightbox{
+  position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;
+  padding:12px;opacity:0;pointer-events:none;transition:opacity .15s;
+}
+.lightbox.on{opacity:1;pointer-events:auto}
+.lightbox .lb-inner{
+  background:#030503;border:1px solid var(--ln2);border-radius:4px;max-width:96vw;max-height:92vh;overflow:auto;padding:8px;
+}
+.lightbox svg{width:min(1100px,94vw);height:auto;display:block}
+.lightbox .lb-x{
+  position:fixed;top:10px;right:12px;z-index:901;background:var(--lime);color:#050705;border:0;
+  font:700 11px var(--mono);letter-spacing:.12em;padding:10px 12px;border-radius:2px;cursor:pointer;
+}
+.warn-inline{
+  margin:8px 0 0;padding:8px 10px;border:1px solid rgba(230,57,45,.45);border-left:3px solid var(--red);
+  background:rgba(230,57,45,.08);color:var(--tx);font-size:13px;border-radius:2px;
+}
+.warn-inline b{font:700 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:2px}
+.hole-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.hole-table th,.hole-table td{border-top:1px solid var(--ln);padding:8px 6px;text-align:left;font-family:var(--mono)}
+.hole-table th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.hole-table td:first-child{color:var(--lime)}
+.tip-hint{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:6px 0 0}

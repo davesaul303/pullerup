@@ -4,9 +4,29 @@ Step-by-step build guides (tactical lime / black / red). Live at `https://davesa
 
 ## Add a guide
 
-1. Copy `guides/door-alarm-shield.js` as `guides/<id>.js`.
-2. Set `window.FUX_GUIDE = { id: "<id>", title, summary, category, difficulty, time, partsCount, parts, tools, sections, diagrams, code, ... }`.
-3. Add a card to `guides/catalog.js` (`window.FUX_CATALOG`).
-4. Open `guide.html?id=<id>` — the page loads `guides/<id>.js` automatically.
+1. Copy `guides/door-alarm-shield.js` pattern as `guides/<id>.js` setting `window.FUX_GUIDE`.
+2. Add a card to `guides/catalog.js`.
+3. Open `guide.html?id=<id>`.
 
-Unknown search on the home page shows **No guide yet — Send to Kaserin**.
+### Tips (reusable)
+
+In the guide object:
+
+```js
+tips: {
+  hcsr04: {
+    name: "HC-SR04 ultrasonic sensor",
+    does: "Measures distance with silent sound clicks.",
+    job: "Spots someone within about 30 cm of the door."
+  }
+}
+```
+
+In SVG diagrams, mark hotspots:
+
+```html
+<rect class="fux-tip" data-tip="hcsr04" x="..." y="..." width="..." height="..."
+  fill="#b8ff3c" fill-opacity="0" style="cursor:help"/>
+```
+
+`guide.js` binds: desktop hover 3s, phone press-hold ~1s or tap. Tap empty diagram area to enlarge.

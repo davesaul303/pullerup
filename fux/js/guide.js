@@ -6,13 +6,20 @@
   function loadProgress(id){
     try{ return JSON.parse(localStorage.getItem(storageKey(id))||'{}')||{}; }catch(e){ return {}; }
   }
-  function saveProgress(id, map){
-    localStorage.setItem(storageKey(id), JSON.stringify(map));
-  }
+  function saveProgress(id, map){ localStorage.setItem(storageKey(id), JSON.stringify(map)); }
 
   function diagramHtml(guide, key){
     if(!key || !guide.diagrams || !guide.diagrams[key]) return '';
-    return `<div class="diagram">${guide.diagrams[key]}</div>`;
+    return `<div class="diagram" data-diagram="${esc(key)}">${guide.diagrams[key]}<div class="tip-hint">Hold a glowing part · tap diagram to enlarge</div></div>`;
+  }
+
+  function tableHtml(rows){
+    if(!rows || !rows.length) return '';
+    const head = rows[0];
+    const body = rows.slice(1);
+    return `<table class="hole-table"><thead><tr>${head.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>`+
+      body.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')+
+      `</tbody></table>`;
   }
 
   function renderProgress(guide, map){
@@ -22,9 +29,8 @@
     (guide.tools||[]).forEach((_,i) => checks.push('tool-'+i));
     const done = checks.filter(c => map[c]).length;
     const pct = checks.length ? Math.round(done*100/checks.length) : 0;
-    const bar = $('bar'), pctEl = $('pct');
-    if(bar) bar.style.width = pct + '%';
-    if(pctEl) pctEl.textContent = pct + '% · ' + done + '/' + checks.length;
+    if($('bar')) $('bar').style.width = pct + '%';
+    if($('pct')) $('pct').textContent = pct + '% · ' + done + '/' + checks.length;
   }
 
   function bindChecks(guide){
@@ -35,23 +41,149 @@
       const step = inp.closest('.step');
       if(step) step.classList.toggle('done', inp.checked);
       const li = inp.closest('li');
-      if(li){
-        const span = li.querySelector('span');
-        if(span) span.classList.toggle('gone', inp.checked);
-      }
+      if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', inp.checked); }
       inp.addEventListener('change', () => {
         const m = loadProgress(guide.id);
         if(inp.checked) m[key] = true; else delete m[key];
         saveProgress(guide.id, m);
         if(step) step.classList.toggle('done', inp.checked);
-        if(li){
-          const span = li.querySelector('span');
-          if(span) span.classList.toggle('gone', inp.checked);
-        }
+        if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', inp.checked); }
         renderProgress(guide, m);
       });
     });
     renderProgress(guide, map);
+  }
+
+  /* ---- Lightbox ---- */
+  function ensureLightbox(){
+    let lb = document.getElementById('fux-lb');
+    if(lb) return lb;
+    lb = document.createElement('div');
+    lb.id = 'fux-lb';
+    lb.className = 'lightbox';
+    lb.innerHTML = '<button type="button" class="lb-x" aria-label="Close">CLOSE</button><div class="lb-inner"></div>';
+    document.body.appendChild(lb);
+    const close = () => lb.classList.remove('on');
+    lb.querySelector('.lb-x').onclick = close;
+    lb.addEventListener('click', e => { if(e.target===lb) close(); });
+    document.addEventListener('keydown', e => { if(e.key==='Escape') close(); });
+    return lb;
+  }
+  function openLightbox(diagramEl){
+    const lb = ensureLightbox();
+    const inner = lb.querySelector('.lb-inner');
+    const svg = diagramEl.querySelector('svg');
+    if(!svg) return;
+    inner.innerHTML = svg.outerHTML;
+    lb.classList.add('on');
+    // re-bind tips inside lightbox
+    bindTips(inner, window.FUX_GUIDE && window.FUX_GUIDE.tips);
+  }
+  function bindLightbox(root){
+    root.querySelectorAll('.diagram').forEach(d => {
+      d.addEventListener('click', e => {
+        // ignore if clicking intentionally for tip on small targets — still allow enlarge on background
+        if(e.target.closest('.fux-tip') && e.detail){ /* let tip handler run */ }
+        // only enlarge if not a tip long-press; simple: tap empty diagram chrome / svg bg
+        if(e.target.classList && e.target.classList.contains('fux-tip')) return;
+        openLightbox(d);
+      });
+    });
+  }
+
+  /* ---- Reusable tip system ---- */
+  function ensureTipBubble(){
+    let b = document.getElementById('fux-tip');
+    if(b) return b;
+    b = document.createElement('div');
+    b.id = 'fux-tip';
+    b.className = 'tip-bubble';
+    b.style.display = 'none';
+    document.body.appendChild(b);
+    return b;
+  }
+  function placeBubble(b, clientX, clientY){
+    b.style.display = 'block';
+    const pad = 12;
+    let x = clientX + 14, y = clientY + 14;
+    const r = b.getBoundingClientRect();
+    if(x + r.width > window.innerWidth - pad) x = clientX - r.width - 10;
+    if(y + r.height > window.innerHeight - pad) y = clientY - r.height - 10;
+    if(x < pad) x = pad;
+    if(y < pad) y = pad;
+    b.style.left = x + 'px';
+    b.style.top = y + 'px';
+  }
+  function showTip(tips, id, x, y){
+    const t = tips && tips[id];
+    if(!t) return;
+    const b = ensureTipBubble();
+    b.innerHTML = `<div class="tn">${esc(t.name||id)}</div>`+
+      `<p class="td">${esc(t.does||'')}</p>`+
+      `<p class="tj"><b>IN THIS BUILD</b> — ${esc(t.job||'')}</p>`;
+    placeBubble(b, x, y);
+  }
+  function hideTip(){
+    const b = document.getElementById('fux-tip');
+    if(b) b.style.display = 'none';
+  }
+
+  function bindTips(root, tips){
+    if(!tips) return;
+    const nodes = root.querySelectorAll('.fux-tip[data-tip]');
+    nodes.forEach(el => {
+      if(el._fuxTipBound) return;
+      el._fuxTipBound = true;
+      let hoverTimer=null, holdTimer=null, holding=false;
+
+      // Desktop: hover 3s
+      el.addEventListener('pointerenter', e => {
+        if(e.pointerType === 'touch') return;
+        clearTimeout(hoverTimer);
+        const id = el.getAttribute('data-tip');
+        const x = e.clientX, y = e.clientY;
+        hoverTimer = setTimeout(() => showTip(tips, id, x, y), 3000);
+      });
+      el.addEventListener('pointerleave', e => {
+        if(e.pointerType === 'touch') return;
+        clearTimeout(hoverTimer);
+        hideTip();
+      });
+      el.addEventListener('pointermove', e => {
+        if(e.pointerType === 'touch') return;
+        const b = document.getElementById('fux-tip');
+        if(b && b.style.display==='block') placeBubble(b, e.clientX, e.clientY);
+      });
+
+      // Touch / press-hold ~1s, or tap to toggle
+      el.addEventListener('pointerdown', e => {
+        const id = el.getAttribute('data-tip');
+        holding = false;
+        clearTimeout(holdTimer);
+        holdTimer = setTimeout(() => {
+          holding = true;
+          showTip(tips, id, e.clientX, e.clientY);
+        }, 1000);
+      });
+      el.addEventListener('pointerup', e => {
+        clearTimeout(holdTimer);
+        const id = el.getAttribute('data-tip');
+        if(!holding && e.pointerType === 'touch'){
+          // tap toggle
+          const b = document.getElementById('fux-tip');
+          const open = b && b.style.display==='block';
+          if(open) hideTip();
+          else showTip(tips, id, e.clientX, e.clientY);
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+      el.addEventListener('pointercancel', () => { clearTimeout(holdTimer); });
+      el.addEventListener('click', e => {
+        // prevent diagram lightbox when interacting with tip target
+        e.stopPropagation();
+      });
+    });
   }
 
   function showMissing(id){
@@ -86,17 +218,10 @@
     ].join('');
 
     const pull = $('pullerup');
-    if(guide.pullerup){
-      pull.href = guide.pullerup;
-      pull.style.display = '';
-      pull.textContent = 'Price parts on Pullerup';
-    } else {
-      pull.style.display = 'none';
-    }
+    if(guide.pullerup){ pull.href = guide.pullerup; pull.style.display = ''; pull.textContent = 'Price parts on Pullerup'; }
+    else pull.style.display = 'none';
 
-    $('toc').innerHTML = (guide.sections||[]).map(s =>
-      `<a href="#${esc(s.id)}">${esc(s.title)}</a>`
-    ).join('');
+    $('toc').innerHTML = (guide.sections||[]).map(s => `<a href="#${esc(s.id)}">${esc(s.title)}</a>`).join('');
 
     let html = '';
     if(guide.beforeYouStart){
@@ -139,8 +264,10 @@
           <div>
             <h3>${esc(st.title)}</h3>
             <p>${esc(st.detail||'')}</p>
+            ${st.warn ? `<div class="warn-inline"><b>Safety / polarity</b>${esc(st.warn)}</div>` : ''}
             ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
-            ${st.check ? `<label class="check"><input type="checkbox" data-check="${esc(st.check)}"> Done</label>` : ''}
+            ${st.table ? tableHtml(st.table) : ''}
+            ${st.check ? `<label class="check"><input type="checkbox" data-check="${esc(st.check)}"> Check yourself — done</label>` : ''}
           </div>
         </div>`;
       });
@@ -149,6 +276,10 @@
 
     $('body').innerHTML = html;
     bindChecks(guide);
+    bindLightbox($('body'));
+    bindTips($('body'), guide.tips || {});
+    // hide tip when scrolling
+    window.addEventListener('scroll', hideTip, {passive:true});
 
     $('reset').onclick = () => {
       if(!confirm('Clear all progress for this guide?')) return;
@@ -158,11 +289,7 @@
   }
 
   function loadGuide(id){
-    // sanitize id: letters, numbers, dash, underscore only
-    if(!/^[a-z0-9][a-z0-9_-]*$/i.test(id)){
-      showMissing(id);
-      return;
-    }
+    if(!/^[a-z0-9][a-z0-9_-]*$/i.test(id)){ showMissing(id); return; }
     const s = document.createElement('script');
     s.src = 'guides/' + id + '.js';
     s.onload = () => {
@@ -173,6 +300,9 @@
     s.onerror = () => showMissing(id);
     document.head.appendChild(s);
   }
+
+  // Expose tip binder for future guides / lightbox
+  window.FUX_bindTips = bindTips;
 
   window.addEventListener('DOMContentLoaded', () => {
     const id = new URLSearchParams(location.search).get('id') || 'door-alarm-shield';
