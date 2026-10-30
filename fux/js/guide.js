@@ -388,7 +388,9 @@
     const onePane = $('view-one-pane');
     const listPane = $('view-list-pane');
     const listActions = $('list-actions');
-    let mode = loadViewMode(guide.id);
+    const viewParam = (params.get('view') || '').toLowerCase();
+    let mode = (viewParam === 'list' || viewParam === 'one') ? viewParam : loadViewMode(guide.id);
+    if(viewParam === 'list' || viewParam === 'one') saveViewMode(guide.id, mode);
 
     function setToggleUI(){
       const oneBtn = $('view-one');
