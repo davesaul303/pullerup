@@ -1,13 +1,13 @@
 window.FUX_GUIDE = {
   "id": "door-alarm-shield",
   "title": "Door Alarm Shield",
-  "summary": "Kid-clear steps with neon wire diagrams. One bright wire at a time. Breadboard first, then solder.",
+  "summary": "One big step at a time. Tap Done, then Next. Neon wire pictures. Breadboard first, then solder.",
   "category": "Electronics",
   "difficulty": "Beginner",
   "time": "2\u20134 hr",
   "partsCount": 14,
   "pullerup": null,
-  "beforeYouStart": "Code is already on the Elegoo. Unplug USB before moving wires. In each wiring picture the NEW wire glows. WHITE wires are GND (ground). Double right-click a part for Farowt. Tap empty diagram space to enlarge.",
+  "beforeYouStart": "Code is already on the Elegoo. Unplug USB before moving wires. Do ONE step at a time. Tap Done when finished, then Next. Double right-click a part (phone: double-tap or hold) for Farowt.",
   "tips": {
     "usb": {
       "name": "USB-B port",
@@ -249,23 +249,39 @@ window.FUX_GUIDE = {
         {
           "title": "Hold USB to the left",
           "detail": "Turn the board so the metal USB port points left \u2014 same as the drawing.",
-          "check": "u1"
+          "check": "u1",
+          "action": "Turn the board so the USB hole points LEFT.",
+          "from": "USB metal hole",
+          "to": "LEFT side",
+          "why": "Every picture in this guide shows USB on the left. Match that or the pins look wrong."
         },
         {
           "title": "Find 5V and GND",
           "detail": "On the BOTTOM POWER strip. 5V = tiny battery out. GND = way home.",
           "check": "u2",
-          "warn": "Safety: We use 5V, not Vin, for the sensor."
+          "warn": "Safety: We use 5V, not Vin, for the sensor.",
+          "action": "Find the 5V hole and a GND hole on the BOTTOM strip.",
+          "from": "BOTTOM POWER strip",
+          "to": "5V and GND holes",
+          "why": "5V is like a tiny battery out. GND is the way home for electricity. We use WHITE wires for GND."
         },
         {
           "title": "Find D3, D4\u2013D7, D9, D10, D11",
           "detail": "Numbered doors on the TOP DIGITAL strip (holes face up).",
-          "check": "u3"
+          "check": "u3",
+          "action": "Find holes D3, D4, D5, D6, D7, D9, D10, and D11 on the TOP strip.",
+          "from": "TOP DIGITAL strip",
+          "to": "D3\u2013D11 holes",
+          "why": "These numbered holes are doors the wires plug into. Lime ones in the picture are the ones we use."
         },
         {
           "title": "Check yourself",
           "detail": "Point to 5V, GND, D10, and D9 on the real board.",
-          "check": "u4"
+          "check": "u4",
+          "action": "Point to 5V, GND, D10, and D9 on your real board.",
+          "from": "Your real Elegoo",
+          "to": "Those four holes",
+          "why": "If you can find them by yourself, wiring will feel easy."
         }
       ]
     },
@@ -282,31 +298,51 @@ window.FUX_GUIDE = {
           "title": "Voltage",
           "detail": "How hard electricity is pushed. We use 5V.",
           "check": "g1",
-          "diagram": "gloss-voltage"
+          "diagram": "gloss-voltage",
+          "action": "Learn the word Voltage \u2014 we use 5V.",
+          "from": "Word: Voltage",
+          "to": "Means: push strength",
+          "why": "5V is gentle power for our sensor and LEDs."
         },
         {
           "title": "Ground (GND)",
           "detail": "The way back home for electricity. WHITE wires in the pictures.",
           "check": "g2",
-          "diagram": "gloss-ground"
+          "diagram": "gloss-ground",
+          "action": "Learn Ground (GND) \u2014 the way home.",
+          "from": "Word: GND",
+          "to": "Means: way home",
+          "why": "WHITE wires in the pictures go to GND."
         },
         {
           "title": "Polarity",
           "detail": "+ and \u2212 must face the right way for LEDs and buzzers.",
           "check": "g3",
-          "diagram": "gloss-polarity"
+          "diagram": "gloss-polarity",
+          "action": "Learn Polarity \u2014 + and \u2212 must face the right way.",
+          "from": "Word: Polarity",
+          "to": "Means: + vs \u2212 direction",
+          "why": "LEDs and the buzzer break or stay dark if flipped."
         },
         {
           "title": "Pin",
           "detail": "A numbered door / socket on the Uno.",
           "check": "g4",
-          "diagram": "gloss-pin"
+          "diagram": "gloss-pin",
+          "action": "Learn Pin \u2014 a numbered hole / door.",
+          "from": "Word: Pin",
+          "to": "Means: numbered hole",
+          "why": "D10 is \u201cdigital door 10.\u201d"
         },
         {
           "title": "Solder",
           "detail": "Metal glue. Looks like a shiny volcano when good.",
           "check": "g5",
-          "diagram": "gloss-solder"
+          "diagram": "gloss-solder",
+          "action": "Learn Solder \u2014 metal glue for later.",
+          "from": "Word: Solder",
+          "to": "Means: shiny metal glue",
+          "why": "Good solder looks like a tiny shiny volcano."
         }
       ]
     },
@@ -320,38 +356,62 @@ window.FUX_GUIDE = {
           "title": "HC-SR04 sensor",
           "detail": "Two silver cans. Pins VCC Trig Echo Gnd.",
           "check": "p1",
-          "diagram": "card-hcsr04"
+          "diagram": "card-hcsr04",
+          "action": "Meet the distance sensor (two silver cans).",
+          "from": "HC-SR04",
+          "to": "Pins: VCC Trig Echo Gnd",
+          "why": "It pings and listens. Pins left\u2192right: VCC, Trig, Echo, Gnd."
         },
         {
           "title": "LED",
           "detail": "Long = +. Short = \u2212. Needs a resistor.",
           "check": "p2",
           "diagram": "card-led",
-          "warn": "Safety: never wire an LED straight to 5V."
+          "warn": "Safety: never wire an LED straight to 5V.",
+          "action": "Meet an LED \u2014 long leg is +.",
+          "from": "LED long leg",
+          "to": "+ side",
+          "why": "Short leg is \u2212. Always use a resistor. Never plug an LED straight into 5V."
         },
         {
           "title": "Resistor",
           "detail": "Tan body with color bands. 220\u03a9 is best.",
           "check": "p3",
-          "diagram": "card-resistor"
+          "diagram": "card-resistor",
+          "action": "Meet a resistor \u2014 the tan candy with stripes.",
+          "from": "Resistor",
+          "to": "Slows the LED",
+          "why": "220\u03a9 is best. It keeps the LED from burning."
         },
         {
           "title": "Pushbutton",
           "detail": "Four legs across the ditch.",
           "check": "p4",
-          "diagram": "card-button"
+          "diagram": "card-button",
+          "action": "Meet the pushbutton \u2014 four legs across the ditch.",
+          "from": "Button",
+          "to": "Across the ditch",
+          "why": "Two legs on each side of the middle gap."
         },
         {
           "title": "Buzzer",
           "detail": "Find +. That side faces D9.",
           "check": "p5",
-          "diagram": "card-buzzer"
+          "diagram": "card-buzzer",
+          "action": "Meet the buzzer \u2014 find the + mark.",
+          "from": "Buzzer +",
+          "to": "Faces D9 later",
+          "why": "The + side gets the orange wire to D9."
         },
         {
           "title": "Jumper colors",
           "detail": "RED=5V, WHITE=GND, YELLOW=Trig, CYAN=Echo, PURPLE=reset, ORANGE=buzzer, LIME=LEDs.",
           "check": "p6",
-          "diagram": "card-jumpers"
+          "diagram": "card-jumpers",
+          "action": "Learn jumper colors (cheat sheet).",
+          "from": "Wire colors",
+          "to": "What each means",
+          "why": "RED=5V, WHITE=GND, YELLOW=Trig, CYAN=Echo, PURPLE=button, ORANGE=buzzer, LIME=LEDs."
         }
       ]
     },
@@ -368,31 +428,51 @@ window.FUX_GUIDE = {
           "title": "LED direction",
           "detail": "Long leg must face the resistor/pin.",
           "check": "uh1",
-          "diagram": "uhoh-led"
+          "diagram": "uhoh-led",
+          "action": "Check LED direction: long leg toward the resistor.",
+          "from": "Wrong: short to pin",
+          "to": "Right: long toward resistor",
+          "why": "Backward LEDs stay dark."
         },
         {
           "title": "Sensor pin order",
           "detail": "VCC Trig Echo Gnd \u2014 left to right.",
           "check": "uh2",
-          "diagram": "uhoh-sensor"
+          "diagram": "uhoh-sensor",
+          "action": "Check sensor pin order: VCC Trig Echo Gnd.",
+          "from": "Wrong order",
+          "to": "VCC Trig Echo Gnd",
+          "why": "Mixed pins can fry the sensor."
         },
         {
           "title": "Button across the ditch",
           "detail": "Not all four legs on one side.",
           "check": "uh3",
-          "diagram": "uhoh-button"
+          "diagram": "uhoh-button",
+          "action": "Seat the button across the ditch \u2014 not all on one side.",
+          "from": "Wrong: all one side",
+          "to": "Right: across ditch",
+          "why": "Same-side legs do nothing useful."
         },
         {
           "title": "Correct row number",
           "detail": "a10 is not a11.",
           "check": "uh4",
-          "diagram": "uhoh-row"
+          "diagram": "uhoh-row",
+          "action": "Match the row number carefully (a10 is not a11).",
+          "from": "Wrong row",
+          "to": "Exact hole number",
+          "why": "One hole off = dead wire."
         },
         {
           "title": "No solder bridges",
           "detail": "Two pins must not share one blob.",
           "check": "uh5",
-          "diagram": "uhoh-bridge"
+          "diagram": "uhoh-bridge",
+          "action": "No solder bridges \u2014 pins must not share one blob.",
+          "from": "Bridge blob",
+          "to": "Separate shiny volcanoes",
+          "why": "Bridges short two pins together."
         }
       ]
     },
@@ -409,160 +489,264 @@ window.FUX_GUIDE = {
           "title": "Unplug USB",
           "detail": "No power while wiring.",
           "check": "w0",
-          "warn": "Safety: Power OFF."
+          "warn": "Safety: Power OFF.",
+          "action": "Unplug the USB cable. Power OFF while you wire.",
+          "from": "USB cable",
+          "to": "Unplugged",
+          "why": "Moving wires with power on can short things."
         },
         {
           "title": "Wire 1 \u2014 red power",
           "detail": "RED: L+1 \u2192 Uno 5V.",
           "check": "w1",
-          "diagram": "w-power-red"
+          "diagram": "w-power-red",
+          "action": "Plug a RED wire from breadboard L+1 into Uno 5V.",
+          "from": "L+1",
+          "to": "Uno 5V",
+          "why": "This feeds the red + rail with power."
         },
         {
           "title": "Wire 2 \u2014 white ground",
           "detail": "WHITE GND: L-1 \u2192 Uno GND.",
           "check": "w2",
-          "diagram": "w-power-blk"
+          "diagram": "w-power-blk",
+          "action": "Plug a WHITE wire from breadboard L\u22121 into Uno GND.",
+          "from": "L\u22121",
+          "to": "Uno GND",
+          "why": "WHITE means ground \u2014 the way home."
         },
         {
           "title": "Seat the sensor",
           "detail": "j1=VCC, j2=Trig, j3=Echo, j4=Gnd.",
           "check": "w3",
           "diagram": "w-sens-place",
-          "warn": "Safety: VCC only to 5V \u2014 never Vin."
+          "warn": "Safety: VCC only to 5V \u2014 never Vin.",
+          "action": "Seat the sensor: j1=VCC, j2=Trig, j3=Echo, j4=Gnd.",
+          "from": "Sensor pins",
+          "to": "Rows j1\u2013j4",
+          "why": "VCC only to 5V later \u2014 never Vin."
         },
         {
           "title": "Wire 3 \u2014 sensor power",
           "detail": "RED: f1 \u2192 L+1.",
           "check": "w4",
-          "diagram": "w-sens-vcc"
+          "diagram": "w-sens-vcc",
+          "action": "Plug a RED wire from f1 into L+1 (sensor power).",
+          "from": "f1 (VCC row)",
+          "to": "L+1",
+          "why": "Gives the sensor 5V."
         },
         {
           "title": "Wire 4 \u2014 sensor ground",
           "detail": "WHITE GND: f4 \u2192 L-4.",
           "check": "w5",
-          "diagram": "w-sens-gnd"
+          "diagram": "w-sens-gnd",
+          "action": "Plug a WHITE wire from f4 into L\u22124 (sensor ground).",
+          "from": "f4 (Gnd row)",
+          "to": "L\u22124",
+          "why": "Grounds the sensor."
         },
         {
           "title": "Wire 5 \u2014 Trig",
           "detail": "YELLOW: f2 \u2192 D10.",
           "check": "w6",
-          "diagram": "w-sens-trig"
+          "diagram": "w-sens-trig",
+          "action": "Plug the YELLOW wire from Trig (f2) into D10.",
+          "from": "f2 Trig",
+          "to": "D10",
+          "why": "D10 tells the sensor to send a ping."
         },
         {
           "title": "Wire 6 \u2014 Echo",
           "detail": "CYAN: f3 \u2192 D11.",
           "check": "w7",
-          "diagram": "w-sens-echo"
+          "diagram": "w-sens-echo",
+          "action": "Plug the CYAN wire from Echo (f3) into D11.",
+          "from": "f3 Echo",
+          "to": "D11",
+          "why": "D11 listens for the ping bounce."
         },
         {
           "title": "Seat the button",
           "detail": "e10 e12 f10 f12 across the ditch.",
           "check": "w8",
-          "diagram": "w-btn-place"
+          "diagram": "w-btn-place",
+          "action": "Seat the button across the ditch on rows 10 and 12.",
+          "from": "Button legs",
+          "to": "e10 e12 f10 f12",
+          "why": "Two legs each side of the middle gap."
         },
         {
           "title": "Wire 7 \u2014 button to D3",
           "detail": "PURPLE: a10 \u2192 D3.",
           "check": "w9",
-          "diagram": "w-btn-d3"
+          "diagram": "w-btn-d3",
+          "action": "Plug a PURPLE wire from a10 into D3.",
+          "from": "a10",
+          "to": "D3",
+          "why": "D3 is the reset-button door."
         },
         {
           "title": "Wire 8 \u2014 button ground",
           "detail": "WHITE GND: j10 \u2192 L-10.",
           "check": "w10",
-          "diagram": "w-btn-gnd"
+          "diagram": "w-btn-gnd",
+          "action": "Plug a WHITE wire from j10 into L\u221210.",
+          "from": "j10",
+          "to": "L\u221210",
+          "why": "Grounds the button."
         },
         {
           "title": "Seat the buzzer",
           "detail": "+ in e14, \u2212 in e16.",
           "check": "w11",
           "diagram": "w-buzz-place",
-          "warn": "Polarity: + faces D9."
+          "warn": "Polarity: + faces D9.",
+          "action": "Seat the buzzer: + in e14, \u2212 in e16.",
+          "from": "Buzzer + / \u2212",
+          "to": "e14 / e16",
+          "why": "+ must face the orange wire to D9."
         },
         {
           "title": "Wire 9 \u2014 buzzer +",
           "detail": "ORANGE: a14 \u2192 D9.",
           "check": "w12",
-          "diagram": "w-buzz-d9"
+          "diagram": "w-buzz-d9",
+          "action": "Plug an ORANGE wire from a14 into D9.",
+          "from": "a14 (+)",
+          "to": "D9",
+          "why": "D9 sings the siren."
         },
         {
           "title": "Wire 10 \u2014 buzzer \u2212",
           "detail": "WHITE GND: a16 \u2192 L-16.",
           "check": "w13",
-          "diagram": "w-buzz-gnd"
+          "diagram": "w-buzz-gnd",
+          "action": "Plug a WHITE wire from a16 into L\u221216.",
+          "from": "a16 (\u2212)",
+          "to": "L\u221216",
+          "why": "Grounds the buzzer."
         },
         {
           "title": "Place red LED 1",
           "detail": "Resistor e18\u2013e19, long a19, short a20.",
           "check": "w14",
           "diagram": "w-led1-place",
-          "warn": "Polarity: long toward resistor."
+          "warn": "Polarity: long toward resistor.",
+          "action": "Place red LED 1 with its resistor (long leg toward resistor).",
+          "from": "Resistor + LED 1",
+          "to": "Rows 18\u201320",
+          "why": "Long leg = +. Short = \u2212."
         },
         {
           "title": "Wire red LED 1 pin",
           "detail": "LIME: a18 \u2192 D4.",
           "check": "w15",
-          "diagram": "w-led1-pin"
+          "diagram": "w-led1-pin",
+          "action": "Plug a LIME wire from a18 into D4.",
+          "from": "a18",
+          "to": "D4",
+          "why": "D4 lights red LED 1."
         },
         {
           "title": "Wire red LED 1 ground",
           "detail": "WHITE GND: a20 \u2192 L-20.",
           "check": "w16",
-          "diagram": "w-led1-gnd"
+          "diagram": "w-led1-gnd",
+          "action": "Plug a WHITE wire from a20 into L\u221220.",
+          "from": "a20",
+          "to": "L\u221220",
+          "why": "Grounds red LED 1."
         },
         {
           "title": "Place red LED 2",
           "detail": "e21\u2013e22, a22, a23.",
           "check": "w17",
-          "diagram": "w-led2-place"
+          "diagram": "w-led2-place",
+          "action": "Place red LED 2 with its resistor (same pattern).",
+          "from": "Resistor + LED 2",
+          "to": "Rows 21\u201323",
+          "why": "Same long-leg rule."
         },
         {
           "title": "Wire red LED 2 pin",
           "detail": "LIME: a21 \u2192 D5.",
           "check": "w18",
-          "diagram": "w-led2-pin"
+          "diagram": "w-led2-pin",
+          "action": "Plug a LIME wire from a21 into D5.",
+          "from": "a21",
+          "to": "D5",
+          "why": "D5 lights red LED 2."
         },
         {
           "title": "Ground red LED 2",
           "detail": "WHITE GND: a23 \u2192 L-23.",
           "check": "w19",
-          "diagram": "w-led2-gnd"
+          "diagram": "w-led2-gnd",
+          "action": "Plug a WHITE wire from a23 into L\u221223.",
+          "from": "a23",
+          "to": "L\u221223",
+          "why": "Grounds red LED 2."
         },
         {
           "title": "Place blue LED 1",
           "detail": "e24\u2013e25, a25, a26.",
           "check": "w20",
-          "diagram": "w-led3-place"
+          "diagram": "w-led3-place",
+          "action": "Place blue LED 1 with its resistor.",
+          "from": "Resistor + blue LED 1",
+          "to": "Rows 24\u201326",
+          "why": "Blue flash for the police look."
         },
         {
           "title": "Wire blue LED 1 pin",
           "detail": "LIME: a24 \u2192 D6.",
           "check": "w21",
-          "diagram": "w-led3-pin"
+          "diagram": "w-led3-pin",
+          "action": "Plug a LIME wire from a24 into D6.",
+          "from": "a24",
+          "to": "D6",
+          "why": "D6 lights blue LED 1."
         },
         {
           "title": "Ground blue LED 1",
           "detail": "WHITE GND: a26 \u2192 L-26.",
           "check": "w22",
-          "diagram": "w-led3-gnd"
+          "diagram": "w-led3-gnd",
+          "action": "Plug a WHITE wire from a26 into L\u221226.",
+          "from": "a26",
+          "to": "L\u221226",
+          "why": "Grounds blue LED 1."
         },
         {
           "title": "Place blue LED 2",
           "detail": "e27\u2013e28, a28, a29.",
           "check": "w23",
-          "diagram": "w-led4-place"
+          "diagram": "w-led4-place",
+          "action": "Place blue LED 2 with its resistor.",
+          "from": "Resistor + blue LED 2",
+          "to": "Rows 27\u201329",
+          "why": "Second blue flash."
         },
         {
           "title": "Wire blue LED 2 pin",
           "detail": "LIME: a27 \u2192 D7.",
           "check": "w24",
-          "diagram": "w-led4-pin"
+          "diagram": "w-led4-pin",
+          "action": "Plug a LIME wire from a27 into D7.",
+          "from": "a27",
+          "to": "D7",
+          "why": "D7 lights blue LED 2."
         },
         {
           "title": "Ground blue LED 2",
           "detail": "WHITE GND: a29 \u2192 L-29.",
           "check": "w25",
-          "diagram": "w-led4-gnd"
+          "diagram": "w-led4-gnd",
+          "action": "Plug a WHITE wire from a29 into L\u221229.",
+          "from": "a29",
+          "to": "L\u221229",
+          "why": "Grounds blue LED 2. Wiring is done!"
         }
       ]
     },
@@ -578,22 +762,38 @@ window.FUX_GUIDE = {
         {
           "title": "Plug USB in",
           "detail": "Power LED ON should light.",
-          "check": "t1"
+          "check": "t1",
+          "action": "Plug the USB cable back in.",
+          "from": "USB cable",
+          "to": "USB-B on the Uno",
+          "why": "The ON light should turn on."
         },
         {
           "title": "Wave within 1 foot",
           "detail": "Siren + red/blue flash.",
-          "check": "t2"
+          "check": "t2",
+          "action": "Wave your hand within about 1 foot of the sensor.",
+          "from": "Your hand",
+          "to": "In front of sensor",
+          "why": "Siren + red/blue flash means it works."
         },
         {
           "title": "Pull hand away \u2014 alarm stays",
           "detail": "That is the latch.",
-          "check": "t3"
+          "check": "t3",
+          "action": "Pull your hand away \u2014 the alarm should STAY on.",
+          "from": "Hand away",
+          "to": "Alarm still on",
+          "why": "That latch is on purpose."
         },
         {
           "title": "Press your reset button",
           "detail": "Quiet again.",
-          "check": "t4"
+          "check": "t4",
+          "action": "Press YOUR reset button (the one you wired).",
+          "from": "Reset button",
+          "to": "Quiet again",
+          "why": "That clears the latch."
         }
       ]
     },
@@ -610,18 +810,30 @@ window.FUX_GUIDE = {
           "title": "Remember shiny volcanoes",
           "detail": "Review the bridge uh-oh picture.",
           "check": "s1",
-          "diagram": "uhoh-bridge"
+          "diagram": "uhoh-bridge",
+          "action": "Remember: good solder looks like shiny volcanoes.",
+          "from": "Ugly bridge",
+          "to": "Shiny volcano",
+          "why": "Review the bridge uh-oh picture before you heat iron."
         },
         {
           "title": "Shield OFF the Uno while soldering",
           "detail": "Heat can hurt the brain chip.",
           "check": "s2",
-          "warn": "Safety: unplug. Shield off."
+          "warn": "Safety: unplug. Shield off.",
+          "action": "Keep the shield OFF the Uno while you solder.",
+          "from": "Shield",
+          "to": "Off the Uno",
+          "why": "Heat can hurt the brain chip. Unplug first."
         },
         {
           "title": "Polarity photo before each part",
           "detail": "LED long leg, buzzer +, sensor labels.",
-          "check": "s3"
+          "check": "s3",
+          "action": "Snap a polarity photo before each part goes on.",
+          "from": "LED / buzzer / sensor",
+          "to": "Correct + \u2212",
+          "why": "Fixing a flipped LED after solder is hard."
         }
       ]
     },

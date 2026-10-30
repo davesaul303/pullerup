@@ -4,10 +4,16 @@
   const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function storageKey(id){ return 'fux-progress:' + id; }
+  function stepIndexKey(id){ return 'fux-step:' + id; }
   function loadProgress(id){
     try{ return JSON.parse(localStorage.getItem(storageKey(id))||'{}')||{}; }catch(e){ return {}; }
   }
   function saveProgress(id, map){ localStorage.setItem(storageKey(id), JSON.stringify(map)); }
+  function loadStepIndex(id){
+    const n = parseInt(localStorage.getItem(stepIndexKey(id))||'0', 10);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }
+  function saveStepIndex(id, i){ localStorage.setItem(stepIndexKey(id), String(i)); }
 
   function diagramHtml(guide, key){
     if(!key || !guide.diagrams || !guide.diagrams[key]) return '';
@@ -22,36 +28,29 @@
       body.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')+`</tbody></table>`;
   }
 
-  function renderProgress(guide, map){
-    const checks = [];
-    (guide.sections||[]).forEach(sec => (sec.steps||[]).forEach(st => { if(st.check) checks.push(st.check); }));
+  function flattenSteps(guide){
+    const list = [];
+    (guide.sections||[]).forEach(sec => {
+      (sec.steps||[]).forEach((st, localIdx) => {
+        list.push({
+          sec,
+          st,
+          localIdx,
+          check: st.check || (sec.id + '-' + localIdx)
+        });
+      });
+    });
+    return list;
+  }
+
+  function renderTopProgress(guide, map, flat){
+    const checks = flat.map(f => f.check);
     (guide.parts||[]).forEach((_,i) => checks.push('part-'+i));
     (guide.tools||[]).forEach((_,i) => checks.push('tool-'+i));
     const done = checks.filter(c => map[c]).length;
     const pct = checks.length ? Math.round(done*100/checks.length) : 0;
     if($('bar')) $('bar').style.width = pct + '%';
     if($('pct')) $('pct').textContent = pct + '% · ' + done + '/' + checks.length;
-  }
-
-  function bindChecks(guide){
-    const map = loadProgress(guide.id);
-    document.querySelectorAll('input[data-check]').forEach(inp => {
-      const key = inp.getAttribute('data-check');
-      inp.checked = !!map[key];
-      const step = inp.closest('.step');
-      if(step) step.classList.toggle('done', inp.checked);
-      const li = inp.closest('li');
-      if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', inp.checked); }
-      inp.addEventListener('change', () => {
-        const m = loadProgress(guide.id);
-        if(inp.checked) m[key] = true; else delete m[key];
-        saveProgress(guide.id, m);
-        if(step) step.classList.toggle('done', inp.checked);
-        if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', inp.checked); }
-        renderProgress(guide, m);
-      });
-    });
-    renderProgress(guide, map);
   }
 
   /* ---- Lightbox ---- */
@@ -105,32 +104,26 @@
       </defs>
       <ellipse cx="60" cy="90" rx="28" ry="4" fill="#000" opacity=".25"/>
       <g class="body">
-        <!-- wire legs -->
         <g class="legL" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
           <path d="M48 72 L42 88"/><path d="M42 88 L36 88"/>
         </g>
         <g class="legR" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
           <path d="M72 72 L78 88"/><path d="M78 88 L84 88"/>
         </g>
-        <!-- arms -->
         <g class="armL" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
           <path d="M28 48 L14 40"/><path d="M14 40 L8 46"/>
         </g>
         <g class="armR" stroke="#b8ff3c" stroke-width="3" stroke-linecap="round" fill="none">
           <path d="M92 48 L106 38"/><path d="M106 38 L112 32"/>
         </g>
-        <!-- lead wires into body -->
         <path d="M20 55 H32" stroke="#9e9e9e" stroke-width="4" stroke-linecap="round"/>
         <path d="M100 55 H88" stroke="#9e9e9e" stroke-width="4" stroke-linecap="round"/>
-        <!-- tan resistor body -->
         <rect x="32" y="38" width="56" height="34" rx="10" fill="url(#fb)" stroke="#6d5c3a" stroke-width="1.5"/>
         <ellipse cx="42" cy="48" rx="8" ry="4" fill="#fff" opacity=".25"/>
-        <!-- color bands -->
         <rect class="band" x="44" y="38" width="6" height="34" fill="#c62828"/>
         <rect class="band" x="54" y="38" width="6" height="34" fill="#c62828"/>
         <rect class="band" x="64" y="38" width="6" height="34" fill="#5d4037"/>
         <rect class="band" x="74" y="38" width="5" height="34" fill="#f9a825"/>
-        <!-- googly eyes -->
         <g class="eye">
           <circle cx="48" cy="52" r="7" fill="url(#eye)" stroke="#333"/>
           <circle cx="50" cy="53" r="3" fill="#111"/>
@@ -143,9 +136,7 @@
           <circle cx="71.5" cy="51.5" r="1.1" fill="#fff"/>
           <rect class="lid" x="61" y="45" width="14" height="14" fill="url(#fb)" opacity="0"/>
         </g>
-        <!-- smile -->
         <path d="M52 64 Q60 70 68 64" fill="none" stroke="#5d4037" stroke-width="2" stroke-linecap="round"/>
-        <!-- zap spark when explaining -->
         <g class="zap" stroke="#b8ff3c" stroke-width="2" fill="none" stroke-linecap="round">
           <path d="M96 28 L102 20 L98 20 L106 10"/>
           <path d="M18 30 L12 22"/>
@@ -177,7 +168,6 @@
     if(reduceMotion()) return;
     const el = ensureFarowt();
     clearAnimClasses(el);
-    // force reflow
     void el.offsetWidth;
     el.classList.add(name);
   }
@@ -187,7 +177,6 @@
     idleTimer = setTimeout(() => {
       const el = document.getElementById('farowt');
       if(el && el.classList.contains('on')){
-        // long idle → sizzle a bit more often
         playAnim(Math.random() < .25 ? 'a-sizzle' : pick(IDLE_ANIMS));
         scheduleIdle();
       }
@@ -225,23 +214,12 @@
       if(el._fuxFarowt) return;
       el._fuxFarowt = true;
       let lastTap = 0, holdTimer = null, held = false;
-
-      // Suppress browser context menu ONLY on tip hotspots
-      el.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        e.stopPropagation();
-      });
-
-      // Desktop: double right-click
+      el.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
       el.addEventListener('mousedown', e => {
         if(e.button !== 2) return;
         e.preventDefault();
-        if(e.detail >= 2){
-          showFarowt(tips, el.getAttribute('data-tip'));
-        }
+        if(e.detail >= 2) showFarowt(tips, el.getAttribute('data-tip'));
       });
-
-      // Touch: double-tap OR long-press ~1s
       el.addEventListener('pointerdown', e => {
         if(e.pointerType === 'mouse' && e.button === 2) return;
         held = false;
@@ -288,6 +266,52 @@
     };
   }
 
+  function sectionExtrasHtml(guide, sec){
+    let html = '';
+    if(sec.callout){
+      const tone = sec.callout.tone ? ' '+sec.callout.tone : '';
+      html += `<div class="callout${tone}"><div class="lead">${esc(sec.callout.lead||'')}</div><p>${esc(sec.callout.text||'')}</p></div>`;
+    }
+    if(sec.diagram) html += diagramHtml(guide, sec.diagram);
+    if(sec.showParts && guide.parts){
+      html += `<div class="extras-block"><div class="extras-title">Parts checklist</div><ul class="parts-list">` +
+        guide.parts.map((p,i) =>
+          `<li><label><input type="checkbox" data-check="part-${i}"><span>${esc(p)}</span></label></li>`
+        ).join('') + `</ul></div>`;
+    }
+    if(sec.showTools && guide.tools){
+      html += `<div class="extras-block"><div class="extras-title">Tools</div><ul class="parts-list">` +
+        guide.tools.map((p,i) =>
+          `<li><label><input type="checkbox" data-check="tool-${i}"><span>${esc(p)}</span></label></li>`
+        ).join('') + `</ul></div>`;
+    }
+    if(sec.showSpecs && guide.specs){
+      html += `<div class="props">` + guide.specs.map(row =>
+        `<div class="prop"><b>${esc(row[0])}</b><span>${esc(row[1])}</span></div>`
+      ).join('') + `</div>`;
+    }
+    if(sec.troubleshooting){
+      html += `<table class="table"><thead><tr><th>Problem</th><th>Try this</th></tr></thead><tbody>` +
+        sec.troubleshooting.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('') +
+        `</tbody></table>`;
+    }
+    if(sec.showCode && guide.code){
+      html += `<div class="code-wrap"><pre><code>${esc(guide.code)}</code></pre></div>`;
+    }
+    return html;
+  }
+
+  function pinChips(st){
+    const fr = st.from || '';
+    const to = st.to || '';
+    if(!fr && !to) return '';
+    return `<div class="pin-row" aria-label="From to">
+      <span class="pin-chip from">${esc(fr || '—')}</span>
+      <span class="pin-arrow" aria-hidden="true">→</span>
+      <span class="pin-chip to">${esc(to || '—')}</span>
+    </div>`;
+  }
+
   function renderGuide(guide){
     document.title = 'FUX · ' + guide.title;
     $('gtitle').textContent = guide.title;
@@ -303,68 +327,208 @@
     if(guide.pullerup){ pull.href = guide.pullerup; pull.style.display = ''; pull.textContent = 'Price parts on Pullerup'; }
     else pull.style.display = 'none';
 
-    $('toc').innerHTML = (guide.sections||[]).map(s => `<a href="#${esc(s.id)}">${esc(s.title)}</a>`).join('');
+    const flat = flattenSteps(guide);
+    const total = flat.length || 1;
+    const params = new URLSearchParams(location.search);
+    const stepParam = parseInt(params.get('step') || '', 10);
+    let idx = Number.isFinite(stepParam) && stepParam >= 1
+      ? Math.min(Math.max(stepParam - 1, 0), total - 1)
+      : Math.min(loadStepIndex(guide.id), total - 1);
+
+    // TOC jumps to first step of section
+    $('toc').innerHTML = (guide.sections||[]).map(s => {
+      const first = flat.findIndex(f => f.sec.id === s.id);
+      if(first < 0 && !s.showCode) return '';
+      const jump = first >= 0 ? first : 0;
+      return `<a href="#walk" data-jump="${jump}">${esc(s.title)}</a>`;
+    }).join('');
 
     let html = '';
     if(guide.beforeYouStart){
       html += `<div class="callout"><div class="lead">Before you start</div><p>${esc(guide.beforeYouStart)}</p></div>`;
     }
 
+    // Code-only section (no steps) still reachable
     (guide.sections||[]).forEach(sec => {
-      html += `<section class="section" id="${esc(sec.id)}"><h2>${esc(sec.title)}</h2>`;
-      if(sec.callout){
-        const tone = sec.callout.tone ? ' '+sec.callout.tone : '';
-        html += `<div class="callout${tone}"><div class="lead">${esc(sec.callout.lead||'')}</div><p>${esc(sec.callout.text||'')}</p></div>`;
+      if((sec.steps||[]).length) return;
+      if(sec.showCode || sec.showSpecs || sec.troubleshooting){
+        html += `<section class="section" id="${esc(sec.id)}"><h2>${esc(sec.title)}</h2>${sectionExtrasHtml(guide, sec)}</section>`;
       }
-      if(sec.diagram) html += diagramHtml(guide, sec.diagram);
-      if(sec.showParts && guide.parts){
-        html += `<ul class="parts-list">` + guide.parts.map((p,i) =>
-          `<li><label><input type="checkbox" data-check="part-${i}"><span>${esc(p)}</span></label></li>`
-        ).join('') + `</ul>`;
-      }
-      if(sec.showTools && guide.tools){
-        html += `<h2 style="margin-top:18px">Tools</h2><ul class="parts-list">` + guide.tools.map((p,i) =>
-          `<li><label><input type="checkbox" data-check="tool-${i}"><span>${esc(p)}</span></label></li>`
-        ).join('') + `</ul>`;
-      }
-      if(sec.showSpecs && guide.specs){
-        html += `<div class="props">` + guide.specs.map(row =>
-          `<div class="prop"><b>${esc(row[0])}</b><span>${esc(row[1])}</span></div>`
-        ).join('') + `</div>`;
-      }
-      if(sec.troubleshooting){
-        html += `<table class="table"><thead><tr><th>Problem</th><th>Try this</th></tr></thead><tbody>` +
-          sec.troubleshooting.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('') +
-          `</tbody></table>`;
-      }
-      if(sec.showCode && guide.code){
-        html += `<div class="code-wrap"><pre><code>${esc(guide.code)}</code></pre></div>`;
-      }
-      (sec.steps||[]).forEach((st, idx) => {
-        html += `<div class="step">
-          <div class="step-n">${idx+1}</div>
-          <div>
-            <h3>${esc(st.title)}</h3>
-            <p>${esc(st.detail||'')}</p>
-            ${st.warn ? `<div class="warn-inline"><b>Safety / polarity</b>${esc(st.warn)}</div>` : ''}
-            ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
-            ${st.table ? tableHtml(st.table) : ''}
-            ${st.check ? `<label class="check"><input type="checkbox" data-check="${esc(st.check)}"> Check yourself — done</label>` : ''}
-          </div>
-        </div>`;
-      });
-      html += `</section>`;
     });
 
+    html += `<div id="walk" class="walk">
+      <div class="walk-rail" id="walk-rail"></div>
+      <div class="step-card" id="step-card"></div>
+    </div>`;
+
     $('body').innerHTML = html;
-    // update beforeYouStart copy for Farowt if present
-    bindChecks(guide);
-    bindLightbox($('body'));
-    bindFarowtTargets($('body'), guide.tips || {});
+
+    const card = $('step-card');
+    const rail = $('walk-rail');
+
+    function paint(){
+      const map = loadProgress(guide.id);
+      renderTopProgress(guide, map, flat);
+      if(!flat.length){
+        card.innerHTML = `<div class="step-empty">No steps in this guide yet.</div>`;
+        return;
+      }
+      idx = Math.max(0, Math.min(idx, flat.length - 1));
+      saveStepIndex(guide.id, idx);
+      const cur = flat[idx];
+      const st = cur.st;
+      const sec = cur.sec;
+      const n = idx + 1;
+      const pct = Math.round((n / flat.length) * 100);
+      const done = !!map[cur.check];
+      const action = st.action || st.title || 'Do this step';
+      const why = st.why || st.detail || '';
+
+      // collapsed rail: show nearby steps as compact pills
+      const windowStart = Math.max(0, idx - 2);
+      const windowEnd = Math.min(flat.length, idx + 5);
+      let railHtml = `<div class="rail-label">Jump</div><div class="rail-list">`;
+      for(let i = 0; i < flat.length; i++){
+        if(i < windowStart || i >= windowEnd){
+          if(i === windowStart - 1 || i === windowEnd){
+            railHtml += `<button type="button" class="rail-dot more" data-go="${i}" aria-label="More steps">…</button>`;
+          }
+          continue;
+        }
+        const f = flat[i];
+        const isOn = i === idx;
+        const isDone = !!map[f.check];
+        railHtml += `<button type="button" class="rail-dot${isOn?' on':''}${isDone?' did':''}" data-go="${i}" title="${esc(f.st.action||f.st.title||'')}">
+          <span class="rn">${i+1}</span>
+          <span class="rt">${esc((f.st.action||f.st.title||'').slice(0,42))}</span>
+        </button>`;
+      }
+      railHtml += `</div>`;
+      rail.innerHTML = railHtml;
+
+      // show section extras only on first local step of that section
+      const extras = (cur.localIdx === 0) ? sectionExtrasHtml(guide, sec) : '';
+
+      card.className = 'step-card' + (done ? ' is-done' : '');
+      card.innerHTML = `
+        <div class="sc-head">
+          <div class="sc-num" aria-hidden="true">${n}</div>
+          <div class="sc-meta">
+            <div class="sc-section">${esc(sec.title)}</div>
+            <div class="sc-progress-label">Step <b>${n}</b> of <b>${flat.length}</b></div>
+            <div class="sc-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+          </div>
+        </div>
+        ${extras ? `<div class="sc-extras">${extras}</div>` : ''}
+        <h2 class="sc-action">${esc(action)}</h2>
+        ${pinChips(st)}
+        ${st.warn ? `<div class="warn-inline"><b>Watch out</b>${esc(st.warn)}</div>` : ''}
+        ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
+        ${st.table ? tableHtml(st.table) : ''}
+        ${why ? `<details class="sc-why"><summary>Why? <span>(tap to open)</span></summary><p>${esc(why)}</p></details>` : ''}
+        <label class="sc-done">
+          <input type="checkbox" data-check="${esc(cur.check)}" ${done?'checked':''}>
+          <span class="box" aria-hidden="true"></span>
+          <span class="txt">Done ✓</span>
+        </label>
+        <div class="sc-nav">
+          <button type="button" class="nav-btn back" id="nav-back" ${idx===0?'disabled':''}>← Back</button>
+          <button type="button" class="nav-btn next" id="nav-next">${idx>=flat.length-1?'Finish':'Next →'}</button>
+        </div>
+      `;
+
+      // bind done
+      const inp = card.querySelector('input[data-check]');
+      if(inp){
+        inp.addEventListener('change', () => {
+          const m = loadProgress(guide.id);
+          if(inp.checked) m[cur.check] = true; else delete m[cur.check];
+          saveProgress(guide.id, m);
+          card.classList.toggle('is-done', inp.checked);
+          renderTopProgress(guide, m, flat);
+          // refresh rail done state
+          paintRailOnly(m);
+        });
+      }
+
+      // parts/tools checkboxes inside extras
+      card.querySelectorAll('input[data-check]').forEach(el => {
+        if(el === inp) return;
+        const key = el.getAttribute('data-check');
+        el.checked = !!map[key];
+        el.addEventListener('change', () => {
+          const m = loadProgress(guide.id);
+          if(el.checked) m[key] = true; else delete m[key];
+          saveProgress(guide.id, m);
+          renderTopProgress(guide, m, flat);
+          const li = el.closest('li');
+          if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', el.checked); }
+        });
+        const li = el.closest('li');
+        if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', el.checked); }
+      });
+
+      $('nav-back').onclick = () => { if(idx>0){ idx--; paint(); scrollWalk(); } };
+      $('nav-next').onclick = () => {
+        // auto-mark done when advancing if not done? No — user must tap Done. Just advance.
+        if(idx < flat.length - 1){ idx++; paint(); scrollWalk(); }
+        else {
+          // finish: scroll to code section if any
+          const codeSec = document.getElementById('code');
+          if(codeSec) codeSec.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      };
+
+      rail.querySelectorAll('[data-go]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          idx = parseInt(btn.getAttribute('data-go'), 10) || 0;
+          paint();
+          scrollWalk();
+        });
+      });
+
+      bindLightbox(card);
+      bindFarowtTargets(card, guide.tips || {});
+    }
+
+    function paintRailOnly(map){
+      rail.querySelectorAll('.rail-dot[data-go]').forEach(btn => {
+        const i = parseInt(btn.getAttribute('data-go'), 10);
+        if(!Number.isFinite(i) || !flat[i]) return;
+        btn.classList.toggle('did', !!map[flat[i].check]);
+        btn.classList.toggle('on', i === idx);
+      });
+    }
+
+    function scrollWalk(){
+      const el = document.getElementById('walk');
+      if(el) el.scrollIntoView({behavior: reduceMotion()?'auto':'smooth', block:'start'});
+    }
+
+    // TOC jump handlers
+    $('toc').querySelectorAll('[data-jump]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        idx = parseInt(a.getAttribute('data-jump'), 10) || 0;
+        paint();
+        scrollWalk();
+      });
+    });
+
+    paint();
+
+    // keyboard
+    document.addEventListener('keydown', function onKey(e){
+      if(!document.getElementById('step-card')) return;
+      if(e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+      if(e.key === 'ArrowRight' || e.key === 'n'){ e.preventDefault(); $('nav-next') && $('nav-next').click(); }
+      if(e.key === 'ArrowLeft' || e.key === 'b'){ e.preventDefault(); $('nav-back') && $('nav-back').click(); }
+    });
 
     $('reset').onclick = () => {
       if(!confirm('Clear all progress for this guide?')) return;
       localStorage.removeItem(storageKey(guide.id));
+      localStorage.removeItem(stepIndexKey(guide.id));
       location.reload();
     };
   }
@@ -376,10 +540,6 @@
     s.onload = () => {
       const guide = window.FUX_GUIDE;
       if(!guide || guide.id !== id){ showMissing(id); return; }
-      // Patch intro hint for Farowt
-      if(guide.beforeYouStart && /Hold diagrams|press-and-hold|hover/i.test(guide.beforeYouStart)){
-        guide.beforeYouStart = "Your code is already on the Elegoo. Unplug USB before moving wires. Double right-click any marked part (phone: double-tap or press-and-hold) and Farowt the resistor will explain it. Tap empty diagram space to enlarge.";
-      }
       renderGuide(guide);
     };
     s.onerror = () => showMissing(id);
@@ -390,7 +550,8 @@
   window.FUX_showFarowt = showFarowt;
 
   window.addEventListener('DOMContentLoaded', () => {
-    const id = new URLSearchParams(location.search).get('id') || 'door-alarm-shield';
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id') || params.get('g') || 'door-alarm-shield';
     loadGuide(id);
   });
 })();
