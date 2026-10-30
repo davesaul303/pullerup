@@ -5,6 +5,7 @@
 
   function storageKey(id){ return 'fux-progress:' + id; }
   function stepIndexKey(id){ return 'fux-step:' + id; }
+  function viewModeKey(id){ return 'fux-view:' + id; }
   function loadProgress(id){
     try{ return JSON.parse(localStorage.getItem(storageKey(id))||'{}')||{}; }catch(e){ return {}; }
   }
@@ -14,6 +15,11 @@
     return Number.isFinite(n) && n >= 0 ? n : 0;
   }
   function saveStepIndex(id, i){ localStorage.setItem(stepIndexKey(id), String(i)); }
+  function loadViewMode(id){
+    const v = localStorage.getItem(viewModeKey(id));
+    return (v === 'list' || v === 'one') ? v : 'one';
+  }
+  function saveViewMode(id, mode){ localStorage.setItem(viewModeKey(id), mode === 'list' ? 'list' : 'one'); }
 
   function diagramHtml(guide, key){
     if(!key || !guide.diagrams || !guide.diagrams[key]) return '';
@@ -357,16 +363,80 @@
     });
 
     html += `<div id="walk" class="walk">
-      <div class="walk-rail" id="walk-rail"></div>
-      <div class="step-card" id="step-card"></div>
+      <div class="view-toggle" role="group" aria-label="Step view">
+        <span class="vt-label">Steps</span>
+        <div class="vt-btns">
+          <button type="button" class="vt-btn" id="view-one" aria-pressed="true">One at a time</button>
+          <button type="button" class="vt-btn" id="view-list" aria-pressed="false">Full list</button>
+        </div>
+        <div class="vt-list-actions" id="list-actions" hidden>
+          <button type="button" class="vt-mini" id="expand-all">Expand all</button>
+          <button type="button" class="vt-mini" id="collapse-all">Collapse all</button>
+        </div>
+      </div>
+      <div id="view-one-pane">
+        <div class="walk-rail" id="walk-rail"></div>
+        <div class="step-card" id="step-card"></div>
+      </div>
+      <div id="view-list-pane" class="list-pane" hidden></div>
     </div>`;
 
     $('body').innerHTML = html;
 
     const card = $('step-card');
     const rail = $('walk-rail');
+    const onePane = $('view-one-pane');
+    const listPane = $('view-list-pane');
+    const listActions = $('list-actions');
+    let mode = loadViewMode(guide.id);
 
-    function paint(){
+    function setToggleUI(){
+      const oneBtn = $('view-one');
+      const listBtn = $('view-list');
+      if(!oneBtn || !listBtn) return;
+      oneBtn.classList.toggle('on', mode === 'one');
+      listBtn.classList.toggle('on', mode === 'list');
+      oneBtn.setAttribute('aria-pressed', mode === 'one' ? 'true' : 'false');
+      listBtn.setAttribute('aria-pressed', mode === 'list' ? 'true' : 'false');
+      if(onePane) onePane.hidden = mode !== 'one';
+      if(listPane) listPane.hidden = mode !== 'list';
+      if(listActions) listActions.hidden = mode !== 'list';
+    }
+
+    function bindDoneInput(inp, checkKey, rowEl){
+      if(!inp) return;
+      inp.addEventListener('change', e => {
+        e.stopPropagation();
+        const m = loadProgress(guide.id);
+        if(inp.checked) m[checkKey] = true; else delete m[checkKey];
+        saveProgress(guide.id, m);
+        if(rowEl) rowEl.classList.toggle('is-done', inp.checked);
+        renderTopProgress(guide, m, flat);
+        if(mode === 'one') paintRailOnly(m);
+      });
+      // clicking label shouldn't toggle the accordion
+      inp.addEventListener('click', e => e.stopPropagation());
+    }
+
+    function bindExtraChecks(root, map){
+      root.querySelectorAll('input[data-check]').forEach(el => {
+        if(el.closest('.sc-done') || el.closest('.lr-done')) return;
+        const key = el.getAttribute('data-check');
+        el.checked = !!map[key];
+        el.addEventListener('change', () => {
+          const m = loadProgress(guide.id);
+          if(el.checked) m[key] = true; else delete m[key];
+          saveProgress(guide.id, m);
+          renderTopProgress(guide, m, flat);
+          const li = el.closest('li');
+          if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', el.checked); }
+        });
+        const li = el.closest('li');
+        if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', el.checked); }
+      });
+    }
+
+    function paintOne(){
       const map = loadProgress(guide.id);
       renderTopProgress(guide, map, flat);
       if(!flat.length){
@@ -384,7 +454,6 @@
       const action = st.action || st.title || 'Do this step';
       const why = st.why || st.detail || '';
 
-      // collapsed rail: show nearby steps as compact pills
       const windowStart = Math.max(0, idx - 2);
       const windowEnd = Math.min(flat.length, idx + 5);
       let railHtml = `<div class="rail-label">Jump</div><div class="rail-list">`;
@@ -406,7 +475,6 @@
       railHtml += `</div>`;
       rail.innerHTML = railHtml;
 
-      // show section extras only on first local step of that section
       const extras = (cur.localIdx === 0) ? sectionExtrasHtml(guide, sec) : '';
 
       card.className = 'step-card' + (done ? ' is-done' : '');
@@ -437,43 +505,16 @@
         </div>
       `;
 
-      // bind done
-      const inp = card.querySelector('input[data-check]');
-      if(inp){
-        inp.addEventListener('change', () => {
-          const m = loadProgress(guide.id);
-          if(inp.checked) m[cur.check] = true; else delete m[cur.check];
-          saveProgress(guide.id, m);
-          card.classList.toggle('is-done', inp.checked);
-          renderTopProgress(guide, m, flat);
-          // refresh rail done state
-          paintRailOnly(m);
-        });
-      }
+      const inp = card.querySelector('.sc-done input[data-check]');
+      bindDoneInput(inp, cur.check, card);
+      bindExtraChecks(card, map);
 
-      // parts/tools checkboxes inside extras
-      card.querySelectorAll('input[data-check]').forEach(el => {
-        if(el === inp) return;
-        const key = el.getAttribute('data-check');
-        el.checked = !!map[key];
-        el.addEventListener('change', () => {
-          const m = loadProgress(guide.id);
-          if(el.checked) m[key] = true; else delete m[key];
-          saveProgress(guide.id, m);
-          renderTopProgress(guide, m, flat);
-          const li = el.closest('li');
-          if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', el.checked); }
-        });
-        const li = el.closest('li');
-        if(li){ const span = li.querySelector('span'); if(span) span.classList.toggle('gone', el.checked); }
-      });
-
-      $('nav-back').onclick = () => { if(idx>0){ idx--; paint(); scrollWalk(); } };
-      $('nav-next').onclick = () => {
-        // auto-mark done when advancing if not done? No — user must tap Done. Just advance.
-        if(idx < flat.length - 1){ idx++; paint(); scrollWalk(); }
+      const back = $('nav-back');
+      const next = $('nav-next');
+      if(back) back.onclick = () => { if(idx>0){ idx--; paintOne(); scrollWalk(); } };
+      if(next) next.onclick = () => {
+        if(idx < flat.length - 1){ idx++; paintOne(); scrollWalk(); }
         else {
-          // finish: scroll to code section if any
           const codeSec = document.getElementById('code');
           if(codeSec) codeSec.scrollIntoView({behavior:'smooth', block:'start'});
         }
@@ -482,7 +523,7 @@
       rail.querySelectorAll('[data-go]').forEach(btn => {
         btn.addEventListener('click', () => {
           idx = parseInt(btn.getAttribute('data-go'), 10) || 0;
-          paint();
+          paintOne();
           scrollWalk();
         });
       });
@@ -492,6 +533,7 @@
     }
 
     function paintRailOnly(map){
+      if(!rail) return;
       rail.querySelectorAll('.rail-dot[data-go]').forEach(btn => {
         const i = parseInt(btn.getAttribute('data-go'), 10);
         if(!Number.isFinite(i) || !flat[i]) return;
@@ -500,27 +542,138 @@
       });
     }
 
+    function paintList(){
+      const map = loadProgress(guide.id);
+      renderTopProgress(guide, map, flat);
+      if(!flat.length){
+        listPane.innerHTML = `<div class="step-empty">No steps in this guide yet.</div>`;
+        return;
+      }
+      let html = '';
+      let lastSec = null;
+      flat.forEach((cur, i) => {
+        const st = cur.st;
+        const sec = cur.sec;
+        const n = i + 1;
+        const done = !!map[cur.check];
+        const action = st.action || st.title || 'Do this step';
+        const why = st.why || st.detail || '';
+        if(sec.id !== lastSec){
+          html += `<div class="list-sec-title" id="list-sec-${esc(sec.id)}">${esc(sec.title)}</div>`;
+          if(cur.localIdx === 0){
+            const extras = sectionExtrasHtml(guide, sec);
+            if(extras) html += `<div class="list-sec-extras">${extras}</div>`;
+          }
+          lastSec = sec.id;
+        }
+        html += `<details class="list-row${done?' is-done':''}" data-step="${i}" id="list-step-${i}">
+          <summary class="lr-summary">
+            <span class="lr-num" aria-hidden="true">${n}</span>
+            <span class="lr-main">
+              <span class="lr-action">${esc(action)}</span>
+              ${pinChips(st)}
+            </span>
+            <label class="lr-done" title="Done">
+              <input type="checkbox" data-check="${esc(cur.check)}" ${done?'checked':''}>
+              <span class="box" aria-hidden="true"></span>
+              <span class="txt">Done ✓</span>
+            </label>
+            <span class="lr-chev" aria-hidden="true"></span>
+          </summary>
+          <div class="lr-body">
+            ${st.warn ? `<div class="warn-inline"><b>Watch out</b>${esc(st.warn)}</div>` : ''}
+            ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
+            ${st.table ? tableHtml(st.table) : ''}
+            ${why ? `<div class="lr-why"><b>Why?</b><p>${esc(why)}</p></div>` : ''}
+            <button type="button" class="lr-focus" data-focus="${i}">Open in One at a time</button>
+          </div>
+        </details>`;
+      });
+      listPane.innerHTML = html;
+
+      listPane.querySelectorAll('.list-row').forEach(row => {
+        const inp = row.querySelector('.lr-done input[data-check]');
+        const key = inp && inp.getAttribute('data-check');
+        bindDoneInput(inp, key, row);
+        // prevent summary toggle when interacting with done
+        const doneLab = row.querySelector('.lr-done');
+        if(doneLab){
+          doneLab.addEventListener('click', e => e.stopPropagation());
+        }
+      });
+      bindExtraChecks(listPane, map);
+      bindLightbox(listPane);
+      bindFarowtTargets(listPane, guide.tips || {});
+
+      listPane.querySelectorAll('[data-focus]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          idx = parseInt(btn.getAttribute('data-focus'), 10) || 0;
+          saveStepIndex(guide.id, idx);
+          mode = 'one';
+          saveViewMode(guide.id, mode);
+          setToggleUI();
+          paintOne();
+          scrollWalk();
+        });
+      });
+    }
+
+    function applyMode(next, opts){
+      mode = next === 'list' ? 'list' : 'one';
+      saveViewMode(guide.id, mode);
+      setToggleUI();
+      if(mode === 'list') paintList();
+      else paintOne();
+      if(!opts || opts.scroll !== false) scrollWalk();
+    }
+
     function scrollWalk(){
       const el = document.getElementById('walk');
       if(el) el.scrollIntoView({behavior: reduceMotion()?'auto':'smooth', block:'start'});
     }
+
+    function scrollToListStep(i){
+      const el = document.getElementById('list-step-' + i);
+      if(el){
+        el.open = true;
+        el.scrollIntoView({behavior: reduceMotion()?'auto':'smooth', block:'start'});
+      } else scrollWalk();
+    }
+
+    $('view-one').onclick = () => applyMode('one');
+    $('view-list').onclick = () => applyMode('list');
+    $('expand-all').onclick = () => {
+      listPane.querySelectorAll('details.list-row').forEach(d => { d.open = true; });
+    };
+    $('collapse-all').onclick = () => {
+      listPane.querySelectorAll('details.list-row').forEach(d => { d.open = false; });
+    };
 
     // TOC jump handlers
     $('toc').querySelectorAll('[data-jump]').forEach(a => {
       a.addEventListener('click', e => {
         e.preventDefault();
         idx = parseInt(a.getAttribute('data-jump'), 10) || 0;
-        paint();
-        scrollWalk();
+        saveStepIndex(guide.id, idx);
+        if(mode === 'list'){
+          paintList();
+          scrollToListStep(idx);
+        } else {
+          paintOne();
+          scrollWalk();
+        }
       });
     });
 
-    paint();
+    setToggleUI();
+    if(mode === 'list') paintList();
+    else paintOne();
 
-    // keyboard
+    // keyboard (one-at-a-time only)
     document.addEventListener('keydown', function onKey(e){
-      if(!document.getElementById('step-card')) return;
-      if(e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+      if(mode !== 'one') return;
+      if(!document.getElementById('step-card') || document.getElementById('view-one-pane').hidden) return;
+      if(e.target && /input|textarea|select|button/i.test(e.target.tagName)) return;
       if(e.key === 'ArrowRight' || e.key === 'n'){ e.preventDefault(); $('nav-next') && $('nav-next').click(); }
       if(e.key === 'ArrowLeft' || e.key === 'b'){ e.preventDefault(); $('nav-back') && $('nav-back').click(); }
     });
@@ -529,6 +682,7 @@
       if(!confirm('Clear all progress for this guide?')) return;
       localStorage.removeItem(storageKey(guide.id));
       localStorage.removeItem(stepIndexKey(guide.id));
+      // keep view mode preference
       location.reload();
     };
   }
