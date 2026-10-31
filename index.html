@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pullerup</title>
+<!doctype html><html data-hub="shop"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pullerup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b0d0c;--pn:#121614;--pn2:#171c19;--ln:#26302a;--tx:#d7ddd4;--mu:#7d887f;--ac:#c9a23a;--ol:#7f9a4a;--rd:#c4544a;--gn:#5fae6a}
@@ -6,7 +6,7 @@
 background-image:linear-gradient(rgba(127,154,74,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(127,154,74,.05) 1px,transparent 1px);background-size:32px 32px}
 .mono,h1,h2,h3,.lbl,.chip,.price,.total,.kv b{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
 .wrap{max-width:1180px;margin:0 auto;padding:0 18px 40px}
-header{position:sticky;top:0;z-index:5;background:rgba(11,13,12,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--ln)}
+/* hub offset */body.hubbed>header{position:sticky;top:0;z-index:5;background:rgba(11,13,12,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--ln)}
 .hd{max-width:1180px;margin:0 auto;padding:10px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 h1{margin:0;font-size:20px;letter-spacing:.28em;color:var(--ac)}h1 span{color:var(--ol)}
 .tag{color:var(--mu);font-size:12px}.total{margin-left:auto;font-size:18px;color:var(--ac);font-weight:700}
@@ -82,7 +82,9 @@ input.big{width:100%;background:var(--pn2);color:var(--tx);border:1px solid var(
 #bentip{position:fixed;top:64px;right:10px;z-index:29;max-width:min(260px,calc(100vw - 20px));background:var(--pn2);border:1px solid var(--ac);border-radius:6px;padding:9px 34px 9px 11px;font-size:13px;color:var(--tx);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5)}
 #bentip:before{content:"";position:absolute;top:-7px;right:22px;width:12px;height:12px;background:var(--pn2);border-left:1px solid var(--ac);border-top:1px solid var(--ac);transform:rotate(45deg)}
 #bentipx{position:absolute;top:2px;right:2px;border:0;background:transparent;color:var(--mu);min-width:30px;min-height:30px;padding:0}
-</style></head><body>
+</style>
+<link rel="stylesheet" href="shared/hub.css">
+</head><body>
 <header><div class="hd"><h1>PULLER<span>UP</span></h1><span class="tag mono">// parts recon · nothing is purchased from here</span><span class="total" id="total"></span>
 <div class="tools"><span id="ref" class="mono"></span><label>Sort <select id="sort"><option value="group">By build</option><option value="asc">Price ↑</option><option value="desc">Price ↓</option></select></label>
 <button id="openall">Open all (included)</button><span>Allow popups for Open all.</span></div></div></header>
@@ -323,4 +325,6 @@ showTab();
 for(const id of ["fb","fs","fk","fm","q"])document.getElementById(id).addEventListener("change",e=>e.stopPropagation());
 document.getElementById("fx").onclick=()=>{for(const k in F)F[k]="";PQ=parseQ("");for(const id in map)document.getElementById(id).value="";render()};
 document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();document.getElementById("q").focus()}if(e.key==="Escape"&&document.getElementById("ben").classList.contains("open")){document.getElementById("benx").click();return}if(e.key==="Escape"){document.getElementById("fx").click();if(["bq","pq"].includes(document.activeElement.id)){document.activeElement.value="";renderBuildQ();renderPartQ()}}})}
-</script></body></html>
+</script><script src="shared/hub.js"></script>
+<script src="shared/links.js"></script>
+</body></html>

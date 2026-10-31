@@ -6,7 +6,7 @@ window.FUX_GUIDE = {
   "difficulty": "Beginner",
   "time": "2\u20134 hr",
   "partsCount": 14,
-  "pullerup": null,
+  "pullerup": "../parts/door-alarm-shield.html",
   "beforeYouStart": "Code is already on the Elegoo. Unplug USB before moving wires or soldering. Do ONE step at a time. Tap Done, then Next. Read every red WATCH OUT. Pass Part 2 (breadboard test) before Part 3 (soldering). Double right-click a part (phone: double-tap or hold) for Farowt. For Part 3: the iron tip is scorching hot \u2014 NEVER grab it; hold only the handle.",
   "tips": {
     "usb": {

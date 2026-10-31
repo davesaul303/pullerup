@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html><html lang="en" data-hub="food"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PULLERUP FOOD</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fff;--pn:#fff;--pn2:#faf8f4;--ln:#e7e2d9;--tx:#1d1d1b;--mu:#7a756c;--ac:#1f3a2e;--ol:#1f3a2e;--rd:#9b3b2f;--gn:#3d6b4f;--br:#a8864f}
@@ -41,7 +41,9 @@ button.p{background:var(--ac);color:#fff;border-color:var(--ac)}.row{display:fle
 #rp.on{transform:none}.bub{position:relative;background:var(--pn2);border:1px solid var(--ln);border-radius:14px;padding:10px 14px;font:500 17px "Cormorant Garamond",serif;margin:4px 0 14px}
 .bub:before{content:"";position:absolute;left:28px;top:-7px;width:12px;height:12px;background:var(--pn2);border-left:1px solid var(--ln);border-top:1px solid var(--ln);transform:rotate(45deg)}
 @media (prefers-reduced-motion:reduce){#rat *{animation:none!important}#rp,#ov{transition:none}}
-</style></head><body>
+</style>
+<link rel="stylesheet" href="../shared/hub.css">
+</head><body>
 <header><h1>PULLERUP<b>·</b>FOOD</h1><small class="m">PRICES 2026-10-25 09:22 MST</small></header>
 <nav><a href="#recipes" id="t-recipes">RECIPES</a><a href="#filter" id="t-filter">FILTER</a><a href="#cart" id="t-cart">CART<span class="badge" id="cb">0</span></a></nav>
 <main>
@@ -135,4 +137,5 @@ $("q").oninput=()=>{ratDo("a-think");clearTimeout(rt);rt=setTimeout(()=>{render(
 $("sugg").innerHTML=Object.keys(R).map(r=>`<button onclick="document.getElementById('q').value='${jq(r)}';render();ratDo('a-happy')">${r}</button>`).join("");
 function tab(){const h=(location.hash||"#recipes").slice(1);["recipes","filter","cart"].forEach(t=>{$("v-"+t).classList.toggle("hide",t!=h);$("t-"+t).classList.toggle("on",t==h)});if(h=="cart")cartv();if(h=="recipes")render()}
 window.onhashchange=tab;const u=new URLSearchParams(location.search).get("q");$("q").value=u||S.q||"";if(new URLSearchParams(location.search).get("rat")){openRP();const v=new URLSearchParams(location.search).get("rat");if(v!="1"){$("pq").value=v;$("pq").oninput()}}stores();badge();if(u&&new URLSearchParams(location.search).get("add")){const r=match(u);if(r){S.cart=[];addAll(r)}}tab();
-</script></body></html>
+</script><script src="../shared/hub.js"></script>
+</body></html>

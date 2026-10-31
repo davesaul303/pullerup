@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-hub="fux">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/fux.css">
+<link rel="stylesheet" href="../shared/hub.css">
 </head>
 <body>
 <header>
@@ -15,8 +16,8 @@
     <div class="tag">GUIDE</div>
     <nav class="nav-links">
       <a href="index.html">All guides</a>
-      <a id="pullerup" href="../" style="display:none">Price parts on Pullerup</a>
-      <a href="../">Pullerup</a>
+      <a id="pullerup" href="../" style="display:none">Parts in Pullerup</a>
+      <a href="../tobuild/">To Build</a>
     </nav>
   </div>
 </header>
@@ -37,6 +38,8 @@
     Progress saves in this browser (localStorage). Add a guide: drop <span class="mono">guides/&lt;id&gt;.js</span> and list it in <span class="mono">guides/catalog.js</span>.
   </div>
 </main>
+<script src="../shared/hub.js"></script>
+<script src="../shared/links.js"></script>
 <script src="js/guide.js"></script>
 </body>
 </html>
