@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>To Build · Pullerup</title>
-<meta name="description" content="Build ideas from your Instagram saves. Link to parts on Pullerup and guides on FUX.">
+<meta name="description" content="Self-contained build list — picture, parts, and steps on every card. No Instagram required.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shared/hub.css">
@@ -12,7 +12,7 @@
 :root{
   --bg:#050705;--pn:#0c110c;--pn2:#101710;--ln:#1c2a1c;--ln2:#2a3d28;
   --tx:#dce6d6;--mu:#7a8a76;--lime:#b8ff3c;--lime2:#8fd62a;--red:#e6392d;--red2:#ff5a4f;
-  --ok:#6ad16a;--warn:#e6c84a;
+  --ok:#6ad16a;--warn:#e6c84a;--sky:#4fc3f7;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --sans:Inter,system-ui,sans-serif;
 }
@@ -30,33 +30,39 @@ a:hover{color:#fff}
 .wrap{max-width:980px;margin:0 auto;padding:0 16px 64px}
 .hero{padding:22px 0 10px}
 .hero h1{margin:0 0 8px;font:700 22px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime)}
-.hero p{margin:0 0 14px;color:var(--mu);max-width:56ch}
+.hero p{margin:0 0 14px;color:var(--mu);max-width:60ch}
 .metrics{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
 .metric{
-  background:var(--pn);border:1px solid var(--ln);border-radius:3px;padding:10px 14px;min-width:110px;
+  background:var(--pn);border:1px solid var(--ln);border-radius:3px;padding:10px 14px;min-width:100px;
 }
 .metric b{display:block;font:700 18px var(--mono);color:var(--lime)}
 .metric span{font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
-.filters button,.level-tabs button,select.status-sel,.card-actions button,.card-actions a.btn{
+.filters button,.level-tabs button,select.status-sel,.card-actions a.btn,.card-actions button,.toggle{
   font:700 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;
   background:var(--pn2);color:var(--tx);border:1px solid var(--ln2);padding:8px 10px;border-radius:2px;cursor:pointer;
 }
 .filters button.on,.level-tabs button.on{background:var(--lime);color:#050705;border-color:var(--lime)}
-.filters button:hover,.level-tabs button:hover{border-color:var(--lime)}
+.filters button:hover,.level-tabs button:hover,.toggle:hover{border-color:var(--lime)}
 .level-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px}
 .level-blurb{color:var(--mu);font-size:13px;margin:-8px 0 16px}
-.grid{display:flex;flex-direction:column;gap:12px}
+.grid{display:flex;flex-direction:column;gap:14px}
 .card{
-  background:var(--pn);border:1px solid var(--ln);border-radius:3px;padding:16px;position:relative;
+  background:var(--pn);border:1px solid var(--ln);border-radius:3px;padding:0;position:relative;overflow:hidden;
 }
-.card:before{content:"";position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid var(--lime);border-top:2px solid var(--lime)}
+.card:before{content:"";position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid var(--lime);border-top:2px solid var(--lime);z-index:2}
 .card.featured{border-color:rgba(184,255,60,.45);box-shadow:0 0 0 1px rgba(184,255,60,.12)}
-.card.built{opacity:.72}
-.card.built h2{text-decoration:line-through;color:var(--mu)}
-.card-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
-.card-top h2{margin:0;font:700 16px/1.3 var(--mono);letter-spacing:.04em;color:var(--tx);flex:1;min-width:160px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
+.card.built{opacity:.78}
+.card.built .title-row h2{text-decoration:line-through;color:var(--mu)}
+.card-body{display:grid;grid-template-columns:140px 1fr;gap:0}
+.thumb{
+  background:#030503;border-right:1px solid var(--ln);display:flex;align-items:center;justify-content:center;min-height:140px;
+}
+.thumb img{width:100%;height:auto;display:block;max-height:160px;object-fit:contain}
+.card-main{padding:14px 16px 16px}
+.title-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.title-row h2{margin:0;font:700 15px/1.3 var(--mono);letter-spacing:.04em;color:var(--tx);flex:1;min-width:140px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{
   font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;
   border:1px solid var(--ln2);padding:3px 7px;color:var(--mu);border-radius:2px;
@@ -66,24 +72,52 @@ a:hover{color:#fff}
 .chip.lv3{color:var(--warn);border-color:rgba(230,200,74,.4)}
 .chip.lv4{color:var(--red2);border-color:rgba(230,57,45,.45)}
 .chip.feat{color:#050705;background:var(--lime);border-color:var(--lime)}
-.what,.skill{margin:0 0 6px;font-size:14px}
-.what{color:var(--tx)}.skill{color:var(--mu)}
-.skill b{color:var(--lime2);font:700 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-right:6px}
-.source{font:11px var(--mono);color:var(--mu);word-break:break-all;margin:8px 0 12px}
+.chip.ready{color:#050705;background:var(--sky);border-color:var(--sky)}
+.chip.cost{color:var(--warn);border-color:rgba(230,200,74,.45)}
+.building{margin:0 0 8px;font-size:14px;color:var(--tx)}
+.building b,.learn b{font:700 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--lime2);margin-right:6px}
+.learn{margin:0 0 10px;font-size:13px;color:var(--mu)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px;font:600 11px var(--mono);color:var(--mu)}
+.meta-row span{border:1px solid var(--ln);padding:4px 8px;border-radius:2px}
+.meta-row .cost-pill{color:var(--warn);border-color:rgba(230,200,74,.4)}
+.details{display:flex;flex-direction:column;gap:6px;margin:0 0 12px}
+.details details{
+  background:var(--pn2);border:1px solid var(--ln);border-radius:2px;
+}
+.details summary{
+  cursor:pointer;list-style:none;padding:10px 12px;
+  font:700 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.details summary::-webkit-details-marker{display:none}
+.details summary:after{content:"+";color:var(--mu);font-size:14px}
+.details details[open] summary:after{content:"–"}
+.details .panel{padding:0 12px 12px;color:var(--tx);font-size:13px}
+.parts-list{margin:0;padding:0;list-style:none}
+.parts-list li{
+  display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;justify-content:space-between;
+  padding:6px 0;border-bottom:1px solid var(--ln);
+}
+.parts-list li:last-child{border-bottom:0}
+.parts-list .have{color:var(--ok);font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.parts-list .buy{color:var(--warn);font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.parts-list .price,.parts-list .note{color:var(--mu);font-size:12px}
+.steps-list{margin:0;padding-left:18px}
+.steps-list li{margin:0 0 6px}
 .card-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .card-actions a.btn.primary,.card-actions button.primary{background:var(--lime);color:#050705;border-color:var(--lime)}
 .card-actions a.btn.ghost,button.ghost{background:transparent}
-.card-actions .req{
-  font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--warn);border:1px dashed rgba(230,200,74,.45);padding:8px 10px;border-radius:2px;
-}
-.status-sel{min-width:120px}
+.credit{margin:10px 0 0;font:10px var(--mono);color:var(--mu)}
+.credit a{color:var(--mu);text-decoration:underline;text-underline-offset:2px}
+.credit a:hover{color:var(--lime)}
 .foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--ln);color:var(--mu);font-size:12px}
 .foot a{color:var(--lime)}
 .empty{padding:24px;border:1px dashed var(--ln2);color:var(--mu);text-align:center;border-radius:3px}
-@media(max-width:560px){
+@media(max-width:640px){
+  .card-body{grid-template-columns:1fr}
+  .thumb{border-right:0;border-bottom:1px solid var(--ln);max-height:160px}
   .hero h1{font-size:18px;letter-spacing:.08em}
-  .card-actions a.btn,.card-actions button,.card-actions .req{flex:1;text-align:center}
+  .card-actions a.btn,.card-actions button{flex:1;text-align:center}
 }
 </style>
 </head>
@@ -91,7 +125,7 @@ a:hover{color:#fff}
 <main class="wrap">
   <div class="hero">
     <h1>To Build</h1>
-    <p>Pick a project. If Parts + Guide are lit, you can buy and build without opening Instagram. Ready Rookie builds come first. Other cards still need a guide — ask Kaserin.</p>
+    <p>Everything you need is on the card — picture, what you’re building, what you learn, difficulty, rough cost, parts, and how-to steps. No Instagram required. Open Parts / How to build on any card.</p>
     <div class="metrics" id="metrics"></div>
     <div class="filters" id="filters" role="tablist" aria-label="Category"></div>
     <div class="level-tabs" id="levels" role="tablist" aria-label="Level"></div>
@@ -100,8 +134,8 @@ a:hover{color:#fff}
   <div class="grid" id="grid"></div>
   <div class="empty" id="empty" hidden>Nothing in this filter. Try All.</div>
   <div class="foot">
-    Status saves on this phone (localStorage). Shop parts on <a href="../">Pullerup</a>. Follow steps on <a href="../fux/">FUX</a>.
-    Source: Instagram saves · no made-up prices.
+    Status saves on this phone (localStorage). Shop checked prices on <a href="../">Pullerup</a>. Full guides on <a href="../fux/">FUX</a>.
+    Prices only where verified — otherwise “check in Pullerup.” Inspired by Instagram saves; credit is tiny and optional.
   </div>
 </main>
 <script src="../shared/hub.js"></script>
@@ -111,7 +145,7 @@ a:hover{color:#fff}
 (function(){
   const STORAGE = "pullerup-tobuild-status-v1";
   const LEVEL_META = {
-    0: { title: "All levels", blurb: "Every project, Rookie to Boss." },
+    0: { title: "All levels", blurb: "Every project, Rookie to Boss — all self-contained on the card." },
     1: { title: "Rookie", blurb: "Watch, learn, and try tiny wins." },
     2: { title: "Apprentice", blurb: "Simple experiments and starter builds." },
     3: { title: "Builder", blurb: "Real projects. You may need extra parts." },
@@ -133,6 +167,7 @@ a:hover{color:#fff}
   let filter = "all";
   let level = 0;
   let statusMap = loadStatus();
+  const openPanels = {}; // id -> {parts:bool, steps:bool}
 
   function loadStatus(){
     try {
@@ -167,18 +202,38 @@ a:hover{color:#fff}
       .replace(/"/g,"&quot;");
   }
 
+  function partsHtml(p){
+    const parts = p.parts || [];
+    if (!parts.length) return '<p class="note">No parts listed.</p>';
+    let html = '<ul class="parts-list">';
+    parts.forEach(function(part){
+      const badge = part.have
+        ? '<span class="have">Already have</span>'
+        : '<span class="buy">Buy</span>';
+      let right = '';
+      if (part.price) right = '<span class="price">' + esc(part.price) + '</span>';
+      else if (part.note) right = '<span class="note">' + esc(part.note) + '</span>';
+      html += '<li><span>' + esc(part.n) + '</span><span>' + badge + (right ? ' · ' + right : '') + '</span></li>';
+    });
+    html += '</ul>';
+    if (p.costDetail) html += '<p class="note" style="margin:8px 0 0;color:var(--mu)">' + esc(p.costDetail) + '</p>';
+    return html;
+  }
+
+  function stepsHtml(p){
+    const steps = p.steps || [];
+    if (!steps.length) return '<p class="note">No steps yet.</p>';
+    return '<ol class="steps-list">' + steps.map(function(s){ return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>';
+  }
+
   function linkButtons(p){
     const L = (window.PULLERUP_LINKS && window.PULLERUP_LINKS.linkFor(p.linkId || p.id)) || null;
-    let html = "";
+    let html = '';
     if (L && L.parts) {
-      html += '<a class="btn primary" href="' + esc(L.parts) + '">Parts in Pullerup</a>';
-    } else {
-      html += '<span class="req" title="No parts page yet">Request parts · ask Kaserin</span>';
+      html += '<a class="btn primary" href="' + esc(L.parts) + '">Full parts page</a>';
     }
     if (L && L.fux) {
-      html += '<a class="btn primary" href="' + esc(L.fux) + '">Guide in FUX</a>';
-    } else {
-      html += '<span class="req" title="No guide yet">Request guide · ask Kaserin</span>';
+      html += '<a class="btn primary" href="' + esc(L.fux) + '">Full FUX guide</a>';
     }
     return html;
   }
@@ -211,9 +266,11 @@ a:hover{color:#fff}
   function renderMetrics(list){
     const built = PROJECTS.filter(function(p){ return getStatus(p.id)==="built"; }).length;
     const building = PROJECTS.filter(function(p){ return getStatus(p.id)==="building"; }).length;
+    const ready = PROJECTS.filter(function(p){ return p.ready; }).length;
     document.getElementById("metrics").innerHTML =
-      '<div class="metric"><b>' + PROJECTS.length + '</b><span>Projects</span></div>' +
+      '<div class="metric"><b>' + PROJECTS.length + '</b><span>On the list</span></div>' +
       '<div class="metric"><b>' + list.length + '</b><span>Showing</span></div>' +
+      '<div class="metric"><b>' + ready + '</b><span>Full guides</span></div>' +
       '<div class="metric"><b>' + building + '</b><span>Building</span></div>' +
       '<div class="metric"><b>' + built + '</b><span>Built</span></div>';
   }
@@ -222,10 +279,10 @@ a:hover{color:#fff}
     renderFilters();
     document.getElementById("levelBlurb").textContent = LEVEL_META[level].blurb;
     const list = PROJECTS.filter(matches);
-    // Featured first, then by level, then name
     list.sort(function(a,b){
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
+      if (!!a.ready !== !!b.ready) return a.ready ? -1 : 1;
       if (a.level !== b.level) return a.level - b.level;
       return a.name.localeCompare(b.name);
     });
@@ -243,35 +300,47 @@ a:hover{color:#fff}
       const opts = STATUS.map(function(s){
         return '<option value="' + s + '"' + (st===s?' selected':'') + '>' + STATUS_LABEL[s] + '</option>';
       }).join("");
-      const hasBuild = !!(window.PULLERUP_LINKS && window.PULLERUP_LINKS.linkFor(p.linkId || p.id));
-      let ig = '';
-      if (hasBuild || p.ready) {
-        ig = p.url
-          ? '<div class="source">Inspired by <a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.handle || 'Instagram') + '</a> · open only if you want the original post</div>'
-          : '<div class="source">Ready to build · parts + FUX guide linked below</div>';
-      } else if (p.url) {
-        ig = '<div class="source">Post: <a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.url) + '</a> · ' + esc(p.handle) + '</div>';
-      } else {
-        ig = '<div class="source">Active kit build · no Instagram post</div>';
-      }
+      const op = openPanels[p.id] || {};
+      const credit = p.handle
+        ? '<p class="credit">credit @' + esc(p.handle) + (p.url ? ' · <a href="' + esc(p.url) + '" target="_blank" rel="noopener">post</a>' : '') + '</p>'
+        : '';
       return (
         '<article class="card' + (p.featured?' featured':'') + (st==='built'?' built':'') + '" id="' + esc(p.id) + '">' +
-          '<div class="card-top">' +
-            '<h2>' + esc(p.name) + '</h2>' +
-            '<div class="chips">' +
-              (p.featured ? '<span class="chip feat">Featured</span>' : '') +
-              '<span class="chip lv' + p.level + '">' + esc(p.levelName) + '</span>' +
-              '<span class="chip">' + esc(p.category) + '</span>' +
+          '<div class="card-body">' +
+            '<div class="thumb"><img src="' + esc(p.thumb) + '" alt="" width="320" height="200" loading="lazy"></div>' +
+            '<div class="card-main">' +
+              '<div class="title-row">' +
+                '<h2>' + esc(p.name) + '</h2>' +
+                '<div class="chips">' +
+                  (p.featured ? '<span class="chip feat">Featured</span>' : '') +
+                  (p.ready ? '<span class="chip ready">Full guide</span>' : '') +
+                  '<span class="chip lv' + p.level + '">' + esc(p.levelName) + '</span>' +
+                  '<span class="chip">' + esc(p.category) + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<p class="building"><b>What you\'re building</b>' + esc(p.building) + '</p>' +
+              '<p class="learn"><b>What you learn</b>' + esc(p.learn) + '</p>' +
+              '<div class="meta-row">' +
+                '<span>Difficulty · ' + esc(p.levelName) + '</span>' +
+                '<span class="cost-pill">Rough cost · ' + esc(p.cost) + '</span>' +
+              '</div>' +
+              '<div class="details">' +
+                '<details data-panel="parts" data-id="' + esc(p.id) + '"' + (op.parts?' open':'') + '>' +
+                  '<summary>Parts · ' + (p.parts||[]).length + '</summary>' +
+                  '<div class="panel">' + partsHtml(p) + '</div>' +
+                '</details>' +
+                '<details data-panel="steps" data-id="' + esc(p.id) + '"' + (op.steps?' open':'') + '>' +
+                  '<summary>How to build · ' + (p.steps||[]).length + ' steps</summary>' +
+                  '<div class="panel">' + stepsHtml(p) + '</div>' +
+                '</details>' +
+              '</div>' +
+              '<div class="card-actions">' +
+                '<label class="mono" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)">Status ' +
+                  '<select class="status-sel" data-id="' + esc(p.id) + '">' + opts + '</select></label>' +
+                linkButtons(p) +
+              '</div>' +
+              credit +
             '</div>' +
-          '</div>' +
-          '<p class="what">' + esc(p.what) + '</p>' +
-          '<p class="skill"><b>Skill</b>' + esc(p.skill) + '</p>' +
-          ig +
-          '<div class="card-actions">' +
-            '<label class="mono" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)">Status ' +
-              '<select class="status-sel" data-id="' + esc(p.id) + '">' + opts + '</select></label>' +
-            linkButtons(p) +
-            (p.url ? '<a class="btn ghost" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + ((hasBuild || p.ready) ? 'Inspired by' : 'Open post') + '</a>' : '') +
           '</div>' +
         '</article>'
       );
@@ -282,8 +351,15 @@ a:hover{color:#fff}
         setStatus(sel.getAttribute("data-id"), sel.value);
       });
     });
+    grid.querySelectorAll("details[data-panel]").forEach(function(d){
+      d.addEventListener("toggle", function(){
+        const id = d.getAttribute("data-id");
+        const panel = d.getAttribute("data-panel");
+        if (!openPanels[id]) openPanels[id] = {};
+        openPanels[id][panel] = d.open;
+      });
+    });
 
-    // Hash jump
     if (location.hash) {
       const t = document.getElementById(location.hash.slice(1));
       if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+<defs><pattern id="g" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#b8ff3c" stroke-opacity=".08"/></pattern></defs>
+<rect width="320" height="200" fill="#030503"/>
+<rect width="320" height="200" fill="url(#g)"/>
+<rect x="8" y="8" width="304" height="184" fill="#0c110c" stroke="#b8ff3c" stroke-width="2" rx="4"/>
+<rect x="80" y="70" width="160" height="40" rx="20" fill="#1a2a0a" stroke="#b8ff3c" stroke-width="3"/>
+<rect x="120" y="78" width="80" height="24" rx="12" fill="#b8ff3c" opacity=".3"/>
+<path d="M100 55 Q160 30 220 55" fill="none" stroke="#ff5a4f" stroke-width="3"/>
+<text x="160" y="145" text-anchor="middle" fill="#b8ff3c" font-size="12" font-family="monospace">SHRINK</text>
+<text x="160" y="188" text-anchor="middle" fill="#7a8a76" font-size="10" font-family="ui-monospace,Menlo,monospace">Heat-Shrink Wire Joins</text>
+</svg>

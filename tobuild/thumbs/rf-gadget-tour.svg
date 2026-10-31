@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+<defs><pattern id="g" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#b8ff3c" stroke-opacity=".08"/></pattern></defs>
+<rect width="320" height="200" fill="#030503"/>
+<rect width="320" height="200" fill="url(#g)"/>
+<rect x="8" y="8" width="304" height="184" fill="#0c110c" stroke="#b8ff3c" stroke-width="2" rx="4"/>
+<rect x="70" y="60" width="80" height="90" rx="6" fill="#151515" stroke="#b8ff3c"/>
+<rect x="170" y="50" width="90" height="110" rx="6" fill="#151515" stroke="#ff5a4f"/>
+<path d="M110 50 Q110 30 130 30" fill="none" stroke="#4fc3f7" stroke-width="2"/>
+<text x="160" y="188" text-anchor="middle" fill="#7a8a76" font-size="10" font-family="ui-monospace,Menlo,monospace">RF Gadget Tour</text>
+</svg>
