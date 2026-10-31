@@ -168,6 +168,10 @@ a:hover{color:#fff}
   let level = 0;
   let statusMap = loadStatus();
   const openPanels = {}; // id -> {parts:bool, steps:bool}
+  (function(){
+    const m = /(?:\?|&)expand=([^&]+)/.exec(location.search);
+    if (m) { openPanels[decodeURIComponent(m[1])] = {parts:true, steps:true}; }
+  })();
 
   function loadStatus(){
     try {
