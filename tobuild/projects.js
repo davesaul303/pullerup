@@ -1,5 +1,5 @@
-// To Build projects — from Instagram saved posts (+ Door Alarm, which already has a FUX guide).
-// Descriptions stay close to the post. No invented prices or parts lists.
+// To Build projects — IG saves turned into buildable missions when ready=true.
+// Descriptions for ready projects match the FUX/Pullerup build. No invented prices.
 window.TOBUILD_PROJECTS = [
   {
     "id": "door-alarm-shield",
@@ -19,10 +19,10 @@ window.TOBUILD_PROJECTS = [
   },
   {
     "id": "soldering-tips",
-    "name": "Soldering Tips School",
+    "name": "First Clean Joints",
     "level": 1,
     "levelName": "Rookie",
-    "what": "Watch and practice soldering tips for engineers.",
+    "what": "Practice real solder joints on your blue proto shield — shiny volcano joints, safety first.",
     "skill": "How to melt solder safely and make clean joints.",
     "url": "https://www.instagram.com/p/DdMpD5goEWZ/",
     "handle": "@cocoasaesthetic",
@@ -31,15 +31,16 @@ window.TOBUILD_PROJECTS = [
       "electronics"
     ],
     "featured": false,
-    "linkId": "soldering-tips"
+    "linkId": "soldering-tips",
+    "ready": true
   },
   {
     "id": "heat-shrink",
-    "name": "Heat-Shrink Heroes",
+    "name": "Heat-Shrink Wire Joins",
     "level": 1,
     "levelName": "Rookie",
-    "what": "Compare solder-sleeve heat-shrink wire connectors vs twisting and taping wires.",
-    "skill": "Stronger, cleaner wire joins.",
+    "what": "Join two wires the clean way with heat-shrink. Slide the tube on first, then shrink.",
+    "skill": "Stronger, cleaner wire joins than twist-and-tape.",
     "url": "https://www.instagram.com/p/DedwcSbFKe8/",
     "handle": "@stalkci.insancikk",
     "category": "tools",
@@ -48,7 +49,8 @@ window.TOBUILD_PROJECTS = [
       "electronics"
     ],
     "featured": false,
-    "linkId": "heat-shrink"
+    "linkId": "heat-shrink",
+    "ready": true
   },
   {
     "id": "tool-kit-tour",
@@ -84,11 +86,11 @@ window.TOBUILD_PROJECTS = [
   },
   {
     "id": "sensor-school",
-    "name": "Sensor School",
+    "name": "Sensor Safari",
     "level": 1,
     "levelName": "Rookie",
-    "what": "Learn how sensors work in hardware projects.",
-    "skill": "How boards sense the real world.",
+    "what": "Wire your HC-SR04 so an LED (and buzzer) fire under 20 cm. Full parts + guide — no Instagram needed.",
+    "skill": "How boards sense distance in the real world.",
     "url": "https://www.instagram.com/p/DecQlXFvmql/",
     "handle": "@tryblueprint.io",
     "category": "electronics",
@@ -96,15 +98,16 @@ window.TOBUILD_PROJECTS = [
       "electronics"
     ],
     "featured": false,
-    "linkId": "sensor-school"
+    "linkId": "sensor-school",
+    "ready": true
   },
   {
     "id": "circuit-sandbox",
-    "name": "Circuit Sandbox Site",
+    "name": "First Breadboard Circuit",
     "level": 1,
     "levelName": "Rookie",
-    "what": "Use a website to build and test electronic circuits on screen.",
-    "skill": "Try a circuit before you wire the real board.",
+    "what": "Build a real button→LED circuit on your breadboard (physical version of on-screen sandboxes).",
+    "skill": "Breadboard rails, INPUT_PULLUP buttons, and a first coded circuit.",
     "url": "https://www.instagram.com/p/DcOBegGzxJs/",
     "handle": "@setupsai",
     "category": "electronics",
@@ -112,15 +115,16 @@ window.TOBUILD_PROJECTS = [
       "electronics"
     ],
     "featured": false,
-    "linkId": "circuit-sandbox"
+    "linkId": "circuit-sandbox",
+    "ready": true
   },
   {
     "id": "usb-led",
-    "name": "USB LED Circuit",
+    "name": "USB LED Lamp",
     "level": 1,
     "levelName": "Rookie",
-    "what": "Make a USB-powered LED light with a resistor circuit.",
-    "skill": "Why LEDs need resistors and how simple circuits close.",
+    "what": "Build a USB-powered LED lamp with a 220Ω resistor. Kit path is $0 on your Elegoo.",
+    "skill": "Why LEDs need resistors and how a simple circuit closes.",
     "url": "https://www.instagram.com/p/DXXp5MUBLvn/",
     "handle": "@explainingeverythingsimply",
     "category": "electronics",
@@ -128,7 +132,8 @@ window.TOBUILD_PROJECTS = [
       "electronics"
     ],
     "featured": false,
-    "linkId": "usb-led"
+    "linkId": "usb-led",
+    "ready": true
   },
   {
     "id": "drone-anatomy",

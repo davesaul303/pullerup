@@ -91,7 +91,7 @@ a:hover{color:#fff}
 <main class="wrap">
   <div class="hero">
     <h1>To Build</h1>
-    <p>Projects from your Instagram saves. Pick one, open the post, learn as you go. When a FUX guide or Pullerup parts page exists, the buttons light up. If not, ask Kaserin.</p>
+    <p>Pick a project. If Parts + Guide are lit, you can buy and build without opening Instagram. Ready Rookie builds come first. Other cards still need a guide — ask Kaserin.</p>
     <div class="metrics" id="metrics"></div>
     <div class="filters" id="filters" role="tablist" aria-label="Category"></div>
     <div class="level-tabs" id="levels" role="tablist" aria-label="Level"></div>
@@ -243,9 +243,17 @@ a:hover{color:#fff}
       const opts = STATUS.map(function(s){
         return '<option value="' + s + '"' + (st===s?' selected':'') + '>' + STATUS_LABEL[s] + '</option>';
       }).join("");
-      const ig = p.url
-        ? '<div class="source">Post: <a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.url) + '</a> · ' + esc(p.handle) + '</div>'
-        : '<div class="source">Active kit build · no Instagram post</div>';
+      const hasBuild = !!(window.PULLERUP_LINKS && window.PULLERUP_LINKS.linkFor(p.linkId || p.id));
+      let ig = '';
+      if (hasBuild || p.ready) {
+        ig = p.url
+          ? '<div class="source">Inspired by <a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.handle || 'Instagram') + '</a> · open only if you want the original post</div>'
+          : '<div class="source">Ready to build · parts + FUX guide linked below</div>';
+      } else if (p.url) {
+        ig = '<div class="source">Post: <a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.url) + '</a> · ' + esc(p.handle) + '</div>';
+      } else {
+        ig = '<div class="source">Active kit build · no Instagram post</div>';
+      }
       return (
         '<article class="card' + (p.featured?' featured':'') + (st==='built'?' built':'') + '" id="' + esc(p.id) + '">' +
           '<div class="card-top">' +
@@ -263,7 +271,7 @@ a:hover{color:#fff}
             '<label class="mono" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)">Status ' +
               '<select class="status-sel" data-id="' + esc(p.id) + '">' + opts + '</select></label>' +
             linkButtons(p) +
-            (p.url ? '<a class="btn ghost" href="' + esc(p.url) + '" target="_blank" rel="noopener">Open post</a>' : '') +
+            (p.url ? '<a class="btn ghost" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + ((hasBuild || p.ready) ? 'Inspired by' : 'Open post') + '</a>' : '') +
           '</div>' +
         '</article>'
       );
