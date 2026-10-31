@@ -45,6 +45,24 @@
       parts: ROOT + "/parts/circuit-sandbox.html",
       tobuild: ROOT + "/tobuild/#circuit-sandbox",
     },
+    "footstep-tile": {
+      title: "Footstep Power Tile",
+      fux: ROOT + "/fux/guide.html?g=footstep-tile",
+      parts: ROOT + "/parts/footstep-tile.html",
+      tobuild: ROOT + "/tobuild/#footstep-tile",
+    },
+    "volvo-steer": {
+      title: "Volvo Split Steer",
+      fux: ROOT + "/fux/guide.html?g=volvo-steer",
+      parts: ROOT + "/parts/volvo-steer.html",
+      tobuild: ROOT + "/tobuild/#volvo-steer",
+    },
+    "heartbeat-sensor": {
+      title: "Heartbeat Sensor Challenge",
+      fux: ROOT + "/fux/guide.html?g=heartbeat-sensor",
+      parts: ROOT + "/parts/heartbeat-sensor.html",
+      tobuild: ROOT + "/tobuild/#heartbeat-sensor",
+    },
   };
 
   function linkFor(id) {

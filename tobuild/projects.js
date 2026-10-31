@@ -236,8 +236,8 @@ window.TOBUILD_PROJECTS = [
     "name": "Footstep Power Tile",
     "level": 2,
     "levelName": "Apprentice",
-    "what": "Learn how Japan piezoelectric floor tiles turn footsteps into electricity (Shibuya Station).",
-    "skill": "How pressure can make electric power.",
+    "what": "Build a desk piezo tile: step → electricity → LED flash. Full parts + guide — no Instagram needed.",
+    "skill": "How pressure can make electric power (and why we rectify the spikes).",
     "url": "https://www.instagram.com/p/DQlvPsxkT99/",
     "handle": "@unbustable.nuttt",
     "category": "electronics",
@@ -246,15 +246,16 @@ window.TOBUILD_PROJECTS = [
       "engineering"
     ],
     "featured": false,
-    "linkId": "footstep-tile"
+    "linkId": "footstep-tile",
+    "ready": true
   },
   {
     "id": "volvo-steer",
     "name": "Volvo Split Steer",
     "level": 2,
     "levelName": "Apprentice",
-    "what": "Study Volvo Dynamic Steering (the Van Damme truck split demo) and try a tiny steering build.",
-    "skill": "How a control stick steers wheels.",
+    "what": "Joystick steers your kit servo — a tiny control-stick steering practice. Kit = $0.",
+    "skill": "How a control stick maps to a steering angle.",
     "url": "https://www.instagram.com/p/DNHGEXUtpyb/",
     "handle": "@technology",
     "category": "engineering",
@@ -263,7 +264,8 @@ window.TOBUILD_PROJECTS = [
       "electronics"
     ],
     "featured": false,
-    "linkId": "volvo-steer"
+    "linkId": "volvo-steer",
+    "ready": true
   },
   {
     "id": "self-heal-concrete",
@@ -286,7 +288,7 @@ window.TOBUILD_PROJECTS = [
     "name": "Heartbeat Sensor Challenge",
     "level": 2,
     "levelName": "Apprentice",
-    "what": "Explore whether you can build a real heartbeat sensor.",
+    "what": "Wire a fingertip pulse sensor, print BPM, blink an LED each beat. Learning only — not medical.",
     "skill": "Reading a body signal with electronics.",
     "url": "https://www.instagram.com/p/Ddt_E-QJbzD/",
     "handle": "@tech.explain1",
@@ -295,7 +297,8 @@ window.TOBUILD_PROJECTS = [
       "electronics"
     ],
     "featured": false,
-    "linkId": "heartbeat-sensor"
+    "linkId": "heartbeat-sensor",
+    "ready": true
   },
   {
     "id": "printed-drone",

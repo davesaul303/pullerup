@@ -59,4 +59,35 @@ window.FUX_CATALOG = [
     partsCount: 6,
     keywords: ["breadboard","button","led","arduino","beginner","first circuit"]
   }
+,
+  {
+    id: "footstep-tile",
+    title: "Footstep Power Tile",
+    summary: "Piezo desk tile: step → electricity → LED flash. Tiny Shibuya-style energy floor.",
+    category: "Electronics",
+    difficulty: "Beginner",
+    time: "1–2 hr",
+    partsCount: 10,
+    keywords: ["piezo","footstep","energy","led","harvest","beginner"]
+  },
+  {
+    id: "volvo-steer",
+    title: "Volvo Split Steer",
+    summary: "Joystick steers your kit servo — tiny control-stick steering practice.",
+    category: "Electronics",
+    difficulty: "Beginner",
+    time: "30–60 min",
+    partsCount: 5,
+    keywords: ["joystick","servo","steering","arduino","kit","beginner"]
+  },
+  {
+    id: "heartbeat-sensor",
+    title: "Heartbeat Sensor Challenge",
+    summary: "Fingertip pulse sensor blinks an LED each beat. Learning tool, not medical.",
+    category: "Electronics",
+    difficulty: "Beginner",
+    time: "45–75 min",
+    partsCount: 5,
+    keywords: ["heartbeat","pulse","sensor","bpm","arduino","beginner"]
+  }
 ];
