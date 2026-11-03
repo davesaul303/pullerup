@@ -99,5 +99,15 @@ window.FUX_CATALOG = [
     time: "1–2 hr",
     partsCount: 8,
     keywords: ["neopixel","ws2812","arc reactor","iron man","led ring","arduino","solder","beginner"]
+  },
+  {
+    id: "theremin",
+    title: "Ultrasonic Theremin",
+    summary: "Wave a hand over the HC-SR04 — pitch tracks distance. Button flips sci-fi scales. Kit build, optional $1.50 piezo.",
+    category: "Electronics",
+    difficulty: "Beginner",
+    time: "1–2 hr",
+    partsCount: 8,
+    keywords: ["theremin","ultrasonic","hc-sr04","buzzer","tone","arduino","solder","beginner","sci-fi"]
   }
 ];

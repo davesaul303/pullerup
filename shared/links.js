@@ -69,6 +69,13 @@
       parts: ROOT + "/parts/arc-reactor.html",
       tobuild: ROOT + "/tobuild/#arc-reactor",
     },
+    "theremin": {
+      title: "Ultrasonic Theremin",
+      fux: ROOT + "/fux/guide.html?g=theremin",
+      parts: ROOT + "/parts/theremin.html",
+      tobuild: ROOT + "/tobuild/#theremin",
+    },
+
   };
 
   function linkFor(id) {

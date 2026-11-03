@@ -125,6 +125,71 @@ window.TOBUILD_PROJECTS = [
     "linkId": "arc-reactor"
   },
   {
+    "id": "theremin",
+    "name": "Ultrasonic Theremin",
+    "level": 2,
+    "levelName": "Apprentice",
+    "category": "electronics",
+    "tags": [
+      "electronics"
+    ],
+    "featured": true,
+    "ready": true,
+    "handle": "",
+    "url": "",
+    "thumb": "thumbs/theremin.svg",
+    "building": "Wave a hand over your HC-SR04: a passive buzzer plays sci-fi notes with pitch tracking distance. Button flips scales. Breadboard first, then solder the blue shield.",
+    "learn": "Ultrasonic ranging, tone(), musical scales, INPUT_PULLUP buttons, and shield soldering.",
+    "cost": "$0 (kit)",
+    "costKind": "kit",
+    "costDetail": "Buy Adafruit piezo $1.50 only if your kit buzzer is active (fixed pitch).",
+    "parts": [
+      {
+        "n": "Elegoo Uno",
+        "have": true
+      },
+      {
+        "n": "Blue proto shield",
+        "have": true
+      },
+      {
+        "n": "HC-SR04",
+        "have": true
+      },
+      {
+        "n": "Passive kit buzzer",
+        "have": true
+      },
+      {
+        "n": "Pushbutton",
+        "have": true
+      },
+      {
+        "n": "Breadboard + jumpers",
+        "have": true
+      },
+      {
+        "n": "Soldering iron",
+        "have": true
+      },
+      {
+        "n": "Piezo if kit is active",
+        "have": false,
+        "price": "$1.50 Adafruit"
+      }
+    ],
+    "steps": [
+      "Confirm buzzer is passive (pitch can change).",
+      "Breadboard: Trig D9, Echo D10, buzz D8, button D2→GND.",
+      "Upload Theremin sketch. Wave 5–40 cm.",
+      "When it sings, solder the same map on the blue shield.",
+      "Never grab the iron tip."
+    ],
+    "guide": "theremin",
+    "partsUrl": "theremin",
+    "linkId": "theremin"
+  },
+  {
     "id": "soldering-tips",
     "name": "First Clean Joints",
     "level": 1,

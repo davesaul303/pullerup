@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+<defs><pattern id="g" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#b8ff3c" stroke-opacity=".08"/></pattern></defs>
+<rect width="320" height="200" fill="#030503"/>
+<rect width="320" height="200" fill="url(#g)"/>
+<rect x="8" y="8" width="304" height="184" fill="#0c110c" stroke="#b8ff3c" stroke-width="2" rx="4"/>
+<!-- sensor eyes -->
+<rect x="40" y="55" width="90" height="70" rx="4" fill="#0a1520" stroke="#4fc3f7" stroke-width="2"/>
+<circle cx="68" cy="90" r="14" fill="#111" stroke="#4fc3f7"/><circle cx="102" cy="90" r="14" fill="#111" stroke="#4fc3f7"/>
+<!-- hand waves -->
+<path d="M160 70 Q190 50 220 70 Q250 90 280 70" fill="none" stroke="#e6c84a" stroke-width="3" stroke-linecap="round"/>
+<path d="M170 95 Q200 80 230 95 Q255 110 285 95" fill="none" stroke="#e6c84a" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+<!-- buzzer -->
+<circle cx="200" cy="145" r="22" fill="#111" stroke="#b8ff3c" stroke-width="2"/>
+<circle cx="200" cy="145" r="8" fill="#0c110c" stroke="#b8ff3c"/>
+<text x="200" cy="0" y="152" text-anchor="middle" fill="#b8ff3c" font-size="10" font-family="ui-monospace,Menlo,monospace">♪</text>
+<text x="160" y="188" text-anchor="middle" fill="#7a8a76" font-size="10" font-family="ui-monospace,Menlo,monospace">Ultrasonic Theremin</text>
+</svg>
