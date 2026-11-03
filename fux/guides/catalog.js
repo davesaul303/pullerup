@@ -89,5 +89,15 @@ window.FUX_CATALOG = [
     time: "45–75 min",
     partsCount: 5,
     keywords: ["heartbeat","pulse","sensor","bpm","arduino","beginner"]
+  },
+  {
+    id: "arc-reactor",
+    title: "Iron Man Arc Reactor",
+    summary: "NeoPixel ring: startup chase + soft blue-white breathing glow. Breadboard first, then solder three leads.",
+    category: "Electronics",
+    difficulty: "Beginner",
+    time: "1–2 hr",
+    partsCount: 8,
+    keywords: ["neopixel","ws2812","arc reactor","iron man","led ring","arduino","solder","beginner"]
   }
 ];

@@ -64,6 +64,67 @@ window.TOBUILD_PROJECTS = [
     "linkId": "door-alarm-shield"
   },
   {
+    "id": "arc-reactor",
+    "name": "Iron Man Arc Reactor",
+    "level": 2,
+    "levelName": "Apprentice",
+    "category": "electronics",
+    "tags": [
+      "electronics"
+    ],
+    "featured": true,
+    "ready": true,
+    "handle": "",
+    "url": "",
+    "thumb": "thumbs/arc-reactor.svg",
+    "building": "NeoPixel LED ring on your Elegoo: a short cyan chase on power-up, then a soft blue-white breathing glow. Breadboard test first, then solder three leads to the ring.",
+    "learn": "Addressable LEDs, data-line resistors, safe USB power limits, and clean solder joints on pads.",
+    "cost": "$9.95",
+    "costKind": "buy",
+    "costDetail": "Adafruit 16-LED NeoPixel ring. Kit covers the rest.",
+    "parts": [
+      {
+        "n": "Elegoo Uno",
+        "have": true
+      },
+      {
+        "n": "Blue proto shield",
+        "have": true
+      },
+      {
+        "n": "NeoPixel ring 16× RGB",
+        "have": false,
+        "price": "$9.95 Adafruit"
+      },
+      {
+        "n": "220–470Ω resistor",
+        "have": true
+      },
+      {
+        "n": "Kit capacitor (optional)",
+        "have": true
+      },
+      {
+        "n": "Breadboard + jumpers",
+        "have": true
+      },
+      {
+        "n": "Soldering iron",
+        "have": true
+      }
+    ],
+    "steps": [
+      "Buy the NeoPixel ring (parts page).",
+      "Install Adafruit_NeoPixel library.",
+      "Breadboard: 5V, GND, D6→resistor→DIN. Upload ArcReactor.",
+      "When it breathes, solder three leads on the ring.",
+      "Never grab the iron tip. Keep BRIGHT ≤ 40 on USB."
+    ],
+    "guide": "arc-reactor",
+    "partsUrl": "arc-reactor",
+    "linkId": "arc-reactor"
+  },
+  {
     "id": "soldering-tips",
     "name": "First Clean Joints",
     "level": 1,

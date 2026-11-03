@@ -63,6 +63,12 @@
       parts: ROOT + "/parts/heartbeat-sensor.html",
       tobuild: ROOT + "/tobuild/#heartbeat-sensor",
     },
+    "arc-reactor": {
+      title: "Iron Man Arc Reactor",
+      fux: ROOT + "/fux/guide.html?g=arc-reactor",
+      parts: ROOT + "/parts/arc-reactor.html",
+      tobuild: ROOT + "/tobuild/#arc-reactor",
+    },
   };
 
   function linkFor(id) {
