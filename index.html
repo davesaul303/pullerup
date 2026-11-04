@@ -87,6 +87,23 @@ input.big{width:100%;background:var(--pn2);color:var(--tx);border:1px solid var(
 #bentip{position:fixed;top:64px;right:10px;z-index:29;max-width:min(260px,calc(100vw - 20px));background:var(--pn2);border:1px solid var(--ac);border-radius:6px;padding:9px 34px 9px 11px;font-size:13px;color:var(--tx);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5)}
 #bentip:before{content:"";position:absolute;top:-7px;right:22px;width:12px;height:12px;background:var(--pn2);border-left:1px solid var(--ac);border-top:1px solid var(--ac);transform:rotate(45deg)}
 #bentipx{position:absolute;top:2px;right:2px;border:0;background:transparent;color:var(--mu);min-width:30px;min-height:30px;padding:0}
+/* HUD compact */
+.seg{display:flex;border:1px solid var(--ln);margin:10px 0 4px;overflow-x:auto}.seg a{flex:1 1 auto;text-align:center;padding:7px 4px;font:700 10px "JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--mu);text-decoration:none;border-right:1px solid var(--ln);white-space:nowrap}.seg a:last-child{border-right:0}.seg a.on{background:var(--ac);color:#0b0d0c}
+.panel{background:transparent;border:0;border-top:1px solid var(--ln);border-radius:0;padding:8px 0;margin-top:10px}.panel:before{display:none}
+.ph{border-bottom:1px solid var(--ln);padding-bottom:4px;margin-bottom:6px}h2{font-size:12px;letter-spacing:.16em}
+.sumg{gap:0;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));border-top:1px solid var(--ln)}
+.kv{background:transparent;border:0;border-bottom:1px solid var(--ln);border-radius:0;padding:4px 6px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.kv .lbl{font-size:9.5px;flex:1 1 100%}.kv b{display:inline;font-size:14px}.kv small{font-size:10px}
+.rows{gap:0}.part{background:transparent;border:0;border-bottom:1px solid var(--ln);border-radius:0;padding:6px 0;gap:8px;grid-template-columns:40px minmax(0,1fr) auto}
+.part.optrow{border-left:0;padding-left:0}.part.optrow .nm:before{content:"+ ";color:var(--ac)}
+.part img,.noimg{width:40px;height:40px;font-size:8px}.nm{font-size:13px}.sub{gap:4px;margin-top:2px}.chip{font-size:9px;padding:1px 4px}.alt{font-size:10.5px}
+.price{font-size:14px}.rt{gap:6px}a.buy{padding:4px 9px;font-size:11px}
+.cline{padding:4px 0;gap:6px;font-size:12px}.cline .nm{font-size:12.5px}.grand{font-size:16px}.bld{gap:4px;margin:4px 0}.bld button{padding:3px 7px;font-size:11px;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em}
+.cmp{font-size:11px}.fbar{gap:4px;margin-top:8px}.leg{gap:6px;font-size:10px;margin-top:6px}table.st{font-size:11px}table.st th,table.st td{padding:3px 4px}
+.bflat{margin-top:16px;padding-top:10px}.bh{font-size:16px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 4px}h3.sg{margin:8px 0 2px;font-size:10px;letter-spacing:.14em}
+@media (max-width:640px){.part{grid-template-columns:40px minmax(0,1fr)}.part img,.noimg{width:40px;height:40px}
+button,select,a.buy{min-height:34px;font-size:13px}.rt{flex-wrap:wrap}.part select{width:auto;flex:1 1 100%;min-width:0;max-width:none}.ctl label{display:inline-flex;gap:4px;align-items:center}
+input[type=number]{width:46px;height:32px;font-size:14px}input[type=checkbox]{width:18px;height:18px}.kv b{font-size:14px}.sumg{grid-template-columns:1fr 1fr 1fr}
+.part .rt .price{display:none}.fbar input[type=search]{min-height:36px;font-size:14px}.tabs a{padding:9px 2px}}
 </style>
 <link rel="stylesheet" href="shared/hub.css">
 </head><body>
@@ -175,11 +192,15 @@ function partEl(it){const s=cur(it),c=document.createElement("div");c.className=
  <a class="buy" href="${s.url}" target="_blank" rel="noopener">BUY ↗</a><button class="addb" data-addp="${it.id}" ${CART[it.id]?"disabled":""}>${CART[it.id]?"✓ In cart":"+ Cart"}</button></div>`;return c}
 function bTot(b){let t=0,n=0,o=0,ot=0;DATA.items.filter(i=>BGN[i.group]===b).forEach(i=>{const s=i.stores[bestIdx(i)];if(i.optional){o++;if(usd(s))ot+=s.price*i.qty;return}n++;if(usd(s))t+=s.price*i.qty});return [t,n,o,ot]}
 function bInc(b){let t=0;DATA.items.filter(i=>BGN[i.group]===b&&i.inc).forEach(i=>{const s=cur(i);if(usd(s))t+=s.price*i.q});return t}
+let SELB=localStorage.getItem("selb")||"arcreactor";
 function render(){
  const m=document.getElementById("main");m.innerHTML="";const mode=document.getElementById("sort").value;
  const panel=(title,right)=>{const p=document.createElement("section");p.className="panel";p.innerHTML=`<div class="ph"><h2>${title}</h2><span class="meta">${right}</span></div>`;m.appendChild(p);return p};
  const flat=PQ.cheap||PQ.dear;const md=PQ.cheap?"asc":PQ.dear?"desc":mode;
- if(mode==="group"&&!flat){for(const b in BNM){const its=DATA.items.filter(i=>BGN[i.group]===b);if(!its.length)continue;const [t,n,o,ot]=bTot(b);
+ if(mode==="group"&&!flat){const SB=[["arcreactor","Arc reactor"],["pantilt","Pan-tilt"],["arm","Arm"],["drone","Drone"],["dashcam","Dash cam"]];
+  const sg=document.createElement("div");sg.className="seg";sg.innerHTML=SB.map(([k,v])=>`<a href="#b-${k}" data-selb="${k}" class="${k===SELB?"on":""}">${v}</a>`).join("");m.appendChild(sg);
+  if(SELB==="arm"){const p=document.createElement("section");p.className="bflat";p.id="b-arm";const T=TPL.arm;p.innerHTML=`<h2 class="bh">Wearable robot arm</h2><div class="cmp">No priced parts list yet. Starter checklist from Ben's build library (needs sourcing, no prices):</div>`+T.parts.map(x=>`<div class="cline"><span class="nm">${x.name}${x.q>1?" ×"+x.q:""}</span><span class="chip man">Needs sourcing</span></div>`).join("");m.appendChild(p)}
+  for(const b in BNM){if(b!==SELB)continue;const its=DATA.items.filter(i=>BGN[i.group]===b);if(!its.length)continue;const [t,n,o,ot]=bTot(b);
   const old=its.map(i=>i.refreshed||DATA.refreshed).sort()[0];
   const sel=its.filter(i=>!i.optional),ins=sel.filter(i=>cur(i).in_stock===true).length,inc=its.filter(i=>i.inc).length;
   const p=document.createElement("section");p.className="bflat";p.id="b-"+b;p.innerHTML=`<h2 class="bh">${BNM[b]}</h2>`;m.appendChild(p);
@@ -324,7 +345,7 @@ const TIPS=["It looks like you're building something. Want a parts list?","Descr
 let tipI=0,tipT;function showTip(){if(sessionStorage.getItem("bentipoff")||document.getElementById("ben").classList.contains("open"))return;const t=document.getElementById("bentip");document.getElementById("bentxt").textContent=TIPS[tipI++%TIPS.length];t.hidden=false;clearTimeout(tipT);tipT=setTimeout(()=>{t.hidden=true;setTimeout(showTip,25000)},9000)}
 setTimeout(showTip,2500);
 document.getElementById("bentip").onclick=e=>{if(e.target.id==="bentipx"){sessionStorage.setItem("bentipoff","1");document.getElementById("bentip").hidden=true;e.stopPropagation();return}document.getElementById("bentip").hidden=true;openBen(true)};
-function jumpBuild(){const id=(location.hash||"").slice(1);if(/^b-/.test(id)){const el=document.getElementById(id);if(el){el.scrollIntoView({block:"start"});return}}}
+function jumpBuild(){const id=(location.hash||"").slice(1);if(/^b-(arcreactor|pantilt|arm|drone|dashcam)$/.test(id)&&id.slice(2)!==SELB){SELB=id.slice(2);localStorage.setItem("selb",SELB);render()}if(/^b-/.test(id)){const el=document.getElementById(id);if(el){el.scrollIntoView({block:"start"});return}}}
 window.addEventListener("hashchange",()=>{showTab();jumpBuild()});
 renderCart();
 let bqT;document.getElementById("bq").addEventListener("input",()=>{clearTimeout(bqT);bqT=setTimeout(()=>think(renderBuildQ),450)});document.getElementById("bq").addEventListener("keydown",e=>{if(e.key==="Enter"){clearTimeout(bqT);think(renderBuildQ)}});document.getElementById("pq").addEventListener("input",renderPartQ);
