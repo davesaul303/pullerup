@@ -1,6 +1,6 @@
 <!doctype html><html data-hub="shop"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pullerup</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta name="pullerup-cache-v" content="20261104-sections">
+<meta name="pullerup-cache-v" content="20261104-clean">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b0d0c;--pn:#121614;--pn2:#171c19;--ln:#26302a;--tx:#d7ddd4;--mu:#7d887f;--ac:#c9a23a;--ol:#7f9a4a;--rd:#c4544a;--gn:#5fae6a}
@@ -49,10 +49,9 @@ footer{color:var(--mu);font-size:11px;text-align:center;margin-top:24px}
 input[type=number]{width:62px;height:40px;font-size:16px}input[type=checkbox]{width:24px;height:24px}.cline select{width:100%}.sumg{grid-template-columns:1fr 1fr}.kv b{font-size:17px}}
 .fbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:16px}.fbar input[type=search]{flex:1 1 200px;background:var(--pn2);color:var(--tx);border:1px solid var(--ln);border-radius:3px;padding:8px 10px;font:inherit}
 .jn{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding:8px 0;align-items:center}
-.bsec{border:2px solid var(--ac);margin-top:26px}.bsec>.ph h2{font-size:24px}.bsec.col>:not(.ph){display:none}.bsec.col>.ph{border-bottom:0;margin-bottom:0}
-.bt{background:transparent;border:1px solid var(--ln);color:var(--ac);font-size:16px;min-width:34px;min-height:34px;padding:0;margin-right:4px;cursor:pointer}
-.bsub{display:flex;flex-wrap:wrap;gap:6px 14px;font:12px "JetBrains Mono",monospace;color:var(--mu);margin:0 0 8px}.bsub b{color:var(--tx)}
-h3.sg{margin:16px 0 8px;padding:6px 8px;background:var(--pn2);border-left:3px solid var(--ac);font:700 14px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--tx)}.jn a{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ac);text-decoration:none;border:1px solid var(--ln);padding:5px 9px;border-radius:2px;background:var(--pn)}
+.bflat{margin-top:28px;padding-top:18px;border-top:1px solid var(--ln);scroll-margin-top:70px}.bflat:first-child{border-top:0;margin-top:8px}
+.bh{font-size:22px;font-weight:700;margin:0 0 8px;color:var(--tx)}
+h3.sg{margin:14px 0 6px;font:700 12px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
 .bar2{height:6px;background:#1d2320;border:1px solid var(--ln);border-radius:2px;overflow:hidden;display:flex;margin:4px 0 2px}.bar2 i{display:block;background:var(--ol)}.bar2 i.o{background:var(--rd)}
 .rd{font-size:11px;color:var(--mu);font-family:"JetBrains Mono",monospace;margin-bottom:8px}
 table.st{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;font-family:"JetBrains Mono",monospace}table.st th,table.st td{border-bottom:1px solid var(--ln);padding:5px 6px;text-align:left}table.st th{color:var(--mu);font-weight:400;letter-spacing:.1em;text-transform:uppercase;font-size:10.5px}table.st td.n{text-align:right}
@@ -176,7 +175,6 @@ function partEl(it){const s=cur(it),c=document.createElement("div");c.className=
  <a class="buy" href="${s.url}" target="_blank" rel="noopener">BUY ↗</a><button class="addb" data-addp="${it.id}" ${CART[it.id]?"disabled":""}>${CART[it.id]?"✓ In cart":"+ Cart"}</button></div>`;return c}
 function bTot(b){let t=0,n=0,o=0,ot=0;DATA.items.filter(i=>BGN[i.group]===b).forEach(i=>{const s=i.stores[bestIdx(i)];if(i.optional){o++;if(usd(s))ot+=s.price*i.qty;return}n++;if(usd(s))t+=s.price*i.qty});return [t,n,o,ot]}
 function bInc(b){let t=0;DATA.items.filter(i=>BGN[i.group]===b&&i.inc).forEach(i=>{const s=cur(i);if(usd(s))t+=s.price*i.q});return t}
-const COL=JSON.parse(localStorage.getItem("pcol")||"{}");
 function render(){
  const m=document.getElementById("main");m.innerHTML="";const mode=document.getElementById("sort").value;
  const panel=(title,right)=>{const p=document.createElement("section");p.className="panel";p.innerHTML=`<div class="ph"><h2>${title}</h2><span class="meta">${right}</span></div>`;m.appendChild(p);return p};
@@ -184,9 +182,7 @@ function render(){
  if(mode==="group"&&!flat){for(const b in BNM){const its=DATA.items.filter(i=>BGN[i.group]===b);if(!its.length)continue;const [t,n,o,ot]=bTot(b);
   const old=its.map(i=>i.refreshed||DATA.refreshed).sort()[0];
   const sel=its.filter(i=>!i.optional),ins=sel.filter(i=>cur(i).in_stock===true).length,inc=its.filter(i=>i.inc).length;
-  const p=panel(`<button class="bt" data-col="${b}" aria-label="Show or hide">${COL[b]?"▸":"▾"}</button> `+BNM[b].replace(/^(\S+)/,"<i>$1</i>"),`<span class="chip auto mono">$${t.toFixed(2)}</span><span>${n} required${o?` · ${o} optional`:""}</span><span>Refreshed ${tstamp(old)}</span>`);p.id="b-"+b;p.classList.add("bsec");if(COL[b])p.classList.add("col");
-  p.insertAdjacentHTML("beforeend",`<div class="bsub"><span>Required <b>$${t.toFixed(2)}</b></span>${o?`<span>All optional <b>$${ot.toFixed(2)}</b></span><span>Everything <b>$${(t+ot).toFixed(2)}</b></span>`:""}<span>Checked now <b>$${bInc(b).toFixed(2)}</b></span></div>`);
-  p.insertAdjacentHTML("beforeend",`<div class="bar2"><i style="width:${ins/sel.length*100}%"></i><i class="o" style="width:${(sel.length-ins)/sel.length*100}%"></i></div><div class="rd">READINESS ${ins}/${sel.length} core picks in stock · ${inc} of ${its.length} included in total</div>`);
+  const p=document.createElement("section");p.className="bflat";p.id="b-"+b;p.innerHTML=`<h2 class="bh">${BNM[b]}</h2>`;m.appendChild(p);
   for(const g of Object.keys(G).filter(g=>BGN[g]===b)){const li=its.filter(i=>i.group===g&&pass(i));if(!li.length)continue;if(Object.keys(G).filter(x=>BGN[x]===b).length>1){const h=document.createElement("h3");h.className="sg";h.textContent=G[g];p.appendChild(h)}
    const req=li.filter(i=>!i.optional),opt=li.filter(i=>i.optional);
    if(req.length){const r=document.createElement("div");r.className="rows";req.forEach(i=>r.appendChild(partEl(i)));p.appendChild(r)}
@@ -210,7 +206,7 @@ function render(){
  document.getElementById("lr").textContent="Last refresh: "+tstamp(DATA.refreshed);
  const fs=document.getElementById("fs");if(fs.options.length<2){ss.forEach(x=>fs.add(new Option(x,x)));const fb=document.getElementById("fb");for(const b in BNM)fb.add(new Option(BNM[b],b));
   }
- document.getElementById("jn").innerHTML='<span class="lbl">Jump to build</span>'+Object.entries(BNM).map(([k,v])=>`<a href="#b-${k}">${v.replace(/ \(.*/,"")} · $${bTot(k)[0].toFixed(2)}</a>`).join("")+'<a href="#cart">Cart</a>'
+ document.getElementById("jn").innerHTML=""
 }
 document.addEventListener("change",e=>{const d=e.target.dataset,f=id=>DATA.items.find(i=>i.id===id);
  if(d.inc)f(d.inc).inc=e.target.checked;if(d.sel)f(d.sel).sel=+e.target.value;if(d.q)f(d.q).q=Math.max(0,+e.target.value||0);
@@ -328,8 +324,7 @@ const TIPS=["It looks like you're building something. Want a parts list?","Descr
 let tipI=0,tipT;function showTip(){if(sessionStorage.getItem("bentipoff")||document.getElementById("ben").classList.contains("open"))return;const t=document.getElementById("bentip");document.getElementById("bentxt").textContent=TIPS[tipI++%TIPS.length];t.hidden=false;clearTimeout(tipT);tipT=setTimeout(()=>{t.hidden=true;setTimeout(showTip,25000)},9000)}
 setTimeout(showTip,2500);
 document.getElementById("bentip").onclick=e=>{if(e.target.id==="bentipx"){sessionStorage.setItem("bentipoff","1");document.getElementById("bentip").hidden=true;e.stopPropagation();return}document.getElementById("bentip").hidden=true;openBen(true)};
-document.addEventListener("click",e=>{const b=e.target.dataset&&e.target.dataset.col;if(!b)return;COL[b]=!COL[b];localStorage.setItem("pcol",JSON.stringify(COL));render()});
-function jumpBuild(){const id=(location.hash||"").slice(1);if(/^b-/.test(id)&&COL[id.slice(2)]){delete COL[id.slice(2)];localStorage.setItem("pcol",JSON.stringify(COL));render()}if(/^b-/.test(id)){const el=document.getElementById(id);if(el){el.scrollIntoView({block:"start"});return}}}
+function jumpBuild(){const id=(location.hash||"").slice(1);if(/^b-/.test(id)){const el=document.getElementById(id);if(el){el.scrollIntoView({block:"start"});return}}}
 window.addEventListener("hashchange",()=>{showTab();jumpBuild()});
 renderCart();
 let bqT;document.getElementById("bq").addEventListener("input",()=>{clearTimeout(bqT);bqT=setTimeout(()=>think(renderBuildQ),450)});document.getElementById("bq").addEventListener("keydown",e=>{if(e.key==="Enter"){clearTimeout(bqT);think(renderBuildQ)}});document.getElementById("pq").addEventListener("input",renderPartQ);
@@ -339,6 +334,6 @@ showTab();jumpBuild();
 for(const id of ["fb","fs","fk","fm","q"])document.getElementById(id).addEventListener("change",e=>e.stopPropagation());
 document.getElementById("fx").onclick=()=>{for(const k in F)F[k]="";PQ=parseQ("");for(const id in map)document.getElementById(id).value="";render()};
 document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();document.getElementById("q").focus()}if(e.key==="Escape"&&document.getElementById("ben").classList.contains("open")){document.getElementById("benx").click();return}if(e.key==="Escape"){document.getElementById("fx").click();if(["bq","pq"].includes(document.activeElement.id)){document.activeElement.value="";renderBuildQ();renderPartQ()}}})}
-</script><script src="shared/hub.js?v=20261104-sections"></script>
-<script src="shared/links.js?v=20261104-sections"></script>
+</script><script src="shared/hub.js?v=20261104-clean"></script>
+<script src="shared/links.js?v=20261104-clean"></script>
 </body></html>
