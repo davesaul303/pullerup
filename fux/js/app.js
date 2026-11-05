@@ -17,7 +17,27 @@
     return s;
   }
 
-  function card(g){
+  const F = {};
+  const mins = t => { const m = String(t||'').match(/(\d+)/); return m ? (/hr/.test(t)?+m[1]*60:+m[1]) : 999; };
+  function passF(g){
+    const hay = norm([g.title,g.summary,g.difficulty,(g.keywords||[]).join(' ')].join(' '));
+    if(F.beginner && !/beginner|easy/.test(norm(g.difficulty))) return false;
+    if(F.solder && !/solder/.test(hay)) return false;
+    if(F.quick && mins(g.time) > 60) return false;
+    const c = ($('cat')||{}).value; if(c && g.category!==c) return false;
+    return true;
+  }
+  function card(g, i){
+    const n = String((i||0)+1).padStart(2,'0');
+    const pc = String(g.partsCount||0).padStart(2,'0');
+    return `<a class="card bp-card" href="guide.html?g=${encodeURIComponent(g.id)}">
+      <div class="bp-thumb"><b>G${n}</b><em>${esc(String(g.category||'').toUpperCase())}</em></div>
+      <h3>${esc(g.title)}</h3>
+      <p class="sum">${esc(g.summary)}</p>
+      <div class="bp-spec">${pc} PARTS · ${esc(g.time)} · ${esc(g.difficulty)}</div>
+    </a>`;
+  }
+  function cardOld(g){
     return `<a class="card" href="guide.html?id=${encodeURIComponent(g.id)}">
       <h3>${esc(g.title)}</h3>
       <p class="sum">${esc(g.summary)}</p>
@@ -33,7 +53,7 @@
   function render(){
     const q = norm(($('q')||{}).value);
     const cat = window.FUX_CATALOG || [];
-    const hits = cat.map(g => ({g,s:score(g,q)})).filter(x => x.s>0).sort((a,b)=>b.s-a.s || a.g.title.localeCompare(b.g.title));
+    const hits = cat.map(g => ({g,s:score(g,q)})).filter(x => x.s>0 && passF(x.g)).sort((a,b)=>b.s-a.s || a.g.title.localeCompare(b.g.title));
     const grid = $('grid');
     const empty = $('empty');
     const meta = $('meta');
@@ -45,7 +65,7 @@
       return;
     }
     empty.classList.add('hide');
-    grid.innerHTML = hits.map(x => card(x.g)).join('');
+    grid.innerHTML = hits.map((x,i) => card(x.g,i)).join('');
   }
 
   function copyKaserin(){
@@ -67,6 +87,9 @@
     $('q').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); render(); }});
     $('go').addEventListener('click', render);
     $('askk').addEventListener('click', copyKaserin);
+    const sel = $('cat');
+    if(sel){ [...new Set((window.FUX_CATALOG||[]).map(g=>g.category))].forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); }); sel.addEventListener('change', render); }
+    document.querySelectorAll('.bp-ic').forEach(b => b.addEventListener('click', () => { F[b.dataset.f] = !F[b.dataset.f]; b.classList.toggle('on', !!F[b.dataset.f]); render(); }));
     render();
   });
 })();

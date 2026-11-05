@@ -6,12 +6,13 @@
 <title>FUX · Build Guides</title>
 <meta name="description" content="FUX — tactical step-by-step build guides. One action per step.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/fux.css">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/fux.css?v=20261104-bp">
 <link rel="stylesheet" href="../shared/hub.css">
+<link rel="stylesheet" href="css/fux-bp.css?v=20261104-bp">
 <style>.hide{display:none!important}</style>
 </head>
-<body>
+<body class="bp bp-home">
 <header>
   <div class="hd">
     <h1 class="brand">FU<span>X</span></h1>
@@ -24,15 +25,20 @@
   </div>
 </header>
 <main class="wrap">
-  <div class="hero">
-    <h2>What are you building?</h2>
-    <p>Search the library. Each guide is one action per step, with diagrams, parts checklists, and progress that saves on this phone.</p>
-    <div class="search">
-      <input id="q" type="search" placeholder="door alarm, arduino, solder…" autocomplete="off" enterkeyhint="search">
-      <button type="button" id="go">Search</button>
+  <section class="bp-hero">
+    <div class="bp-mark"><i></i><i></i><i></i><i></i><h2>FU<span>X</span></h2></div>
+    <div class="bp-sub">BUILD GUIDES · ONE STEP AT A TIME</div>
+    <div class="bp-ask">
+      <div class="search"><input id="q" type="search" placeholder="Search a build guide…" autocomplete="off" enterkeyhint="search"><button type="button" id="go" aria-label="Search">→</button></div>
+      <div class="bp-tools">
+        <button type="button" class="bp-ic" data-f="beginner" title="Beginner">◎<span>Beginner</span></button>
+        <button type="button" class="bp-ic" data-f="solder" title="Solder">⚡<span>Solder</span></button>
+        <button type="button" class="bp-ic" data-f="quick" title="Under 1 hr">◷<span>&lt;1 hr</span></button>
+        <label class="bp-pill"><select id="cat" aria-label="Category"><option value="">All</option></select></label>
+      </div>
     </div>
     <div class="meta-row" id="meta"></div>
-  </div>
+  </section>
   <div class="grid" id="grid"></div>
   <div class="empty hide" id="empty">
     <b>No guide yet</b>
@@ -45,7 +51,7 @@
 </main>
 <script src="../shared/hub.js"></script>
 <script src="../shared/links.js"></script>
-<script src="guides/catalog.js"></script>
-<script src="js/app.js"></script>
+<script src="guides/catalog.js?v=20261104-bp"></script>
+<script src="js/app.js?v=20261104-bp"></script>
 </body>
 </html>
