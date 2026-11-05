@@ -109,6 +109,41 @@ input[type=number]{width:46px;height:32px;font-size:14px}input[type=checkbox]{wi
 .part .rt .price{display:none}.fbar input[type=search]{min-height:36px;font-size:14px}.tabs a{padding:9px 2px}}
 </style>
 <link rel="stylesheet" href="shared/hub.css">
+<style id="bp-shop">
+.bpbar{display:flex;gap:6px;align-items:center;margin:8px 0 10px}
+.bpbar input{flex:1;min-width:0;background:var(--pn);border:1px solid var(--ln);border-radius:999px;color:var(--tx);padding:8px 12px;font:13px Inter,sans-serif}
+.bpbar select{background:var(--pn);border:1px solid var(--ln);border-radius:999px;color:var(--tx);padding:7px 10px;font:10px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase}
+.bpvt{display:inline-flex;border:1px solid var(--ln);border-radius:999px;overflow:hidden}
+.bpvt button{background:transparent;border:0;color:var(--mu);padding:6px 9px;font-size:13px;cursor:pointer}
+.bpvt button.on{background:var(--ac);color:var(--bg)}
+.bphd,.part.bpr{display:grid;grid-template-columns:44px minmax(0,1fr) 40px 58px 64px;gap:8px;align-items:center}
+.bphd{font:700 9px "JetBrains Mono",monospace;letter-spacing:.16em;color:var(--mu);padding:7px 6px;background:var(--pn);border:1px solid var(--ln);border-bottom:0}
+.bphd span:first-child{grid-column:1/3}.bphd .n,.part.bpr .n{text-align:right}
+.bpwrap{border:1px solid var(--ln);border-top:0}
+.part.bpr{padding:9px 6px;border-bottom:1px solid var(--ln)}
+.part.bpr .th{width:44px;height:44px;border:1px solid var(--ln);border-radius:3px;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.part.bpr .th img{width:100%;height:100%;object-fit:contain}
+.part.bpr .th .noimg{font-size:8px;color:#555}
+.part.bpr .nm{font:700 13px/1.25 Inter,sans-serif;color:var(--tx)}
+.part.bpr .md{font:10.5px "JetBrains Mono",monospace;color:var(--mu);margin:2px 0 4px}
+.part.bpr .qn input{width:38px;background:transparent;border:1px solid var(--ln);color:var(--tx);border-radius:3px;padding:3px;text-align:center;font:12px "JetBrains Mono",monospace}
+.part.bpr .un{font:11px "JetBrains Mono",monospace;color:var(--mu)}
+.part.bpr .sb{font:700 12.5px "JetBrains Mono",monospace;color:var(--tx)}
+.part.bpr.off .sb{color:var(--mu);text-decoration:line-through}
+.part.bpr .xx{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11px}
+.part.bpr .xx label{display:inline-flex;gap:4px;align-items:center}.part.bpr .xx input[type=checkbox]{width:14px;height:14px}.part.bpr .xx .buy,.part.bpr .xx .addb{padding:4px 8px;font-size:10px}
+.part.bpr .xx select{flex:1 1 150px;width:auto!important;background:var(--pn);border:1px solid var(--ln);color:var(--tx);border-radius:3px;font-size:11px;padding:3px;max-width:100%}
+.part.bpr .xx .alt{width:100%}
+.cc{display:inline-block;font:700 8.5px "JetBrains Mono",monospace;letter-spacing:.14em;padding:2px 6px;border-radius:3px;border:1px solid;margin-right:4px}
+.cc.LED{color:var(--ac)}.cc.MCU{color:var(--gn)}.cc.POWER{color:#e0c060}.cc.PASSIVE{color:var(--mu)}.cc.CAMERA{color:var(--ol)}.cc.MECH{color:var(--tx)}.cc.RADIO{color:var(--rd)}.cc.MISC{color:var(--mu)}
+.bflat.grid .bphd{display:none}.bflat.grid .bpwrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;border:0}
+.bflat.grid .part.bpr{grid-template-columns:1fr 1fr;border:1px solid var(--ln);border-radius:4px}
+.bflat.grid .part.bpr .th{grid-column:1/-1;width:100%;height:90px}.bflat.grid .part.bpr>div:nth-child(2){grid-column:1/-1}.bflat.grid .part.bpr .xx{grid-column:1/-1}
+.bfoot{position:sticky;bottom:0;z-index:5;display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:rgba(11,13,12,.96);border:1px solid var(--ln);border-top:1px solid var(--ac);padding:10px 12px;margin-top:12px;backdrop-filter:blur(6px)}
+.bfoot span{font:700 9.5px "JetBrains Mono",monospace;letter-spacing:.18em;color:var(--mu)}
+.bfoot b{font:700 22px "JetBrains Mono",monospace;color:var(--ac)}
+.bfoot small{display:block;font:9.5px "JetBrains Mono",monospace;color:var(--mu);letter-spacing:.08em}
+</style>
 </head><body>
 <header><div class="hd"><h1>PULLER<span>UP</span></h1><span class="tag mono">// parts recon · nothing is purchased from here</span><span class="total" id="total"></span>
 <div class="tools"><span id="ref" class="mono"></span><label>Sort <select id="sort"><option value="group">By build</option><option value="asc">Price ↑</option><option value="desc">Price ↓</option></select></label>
@@ -185,14 +220,18 @@ function pass(it,QQ,noF){const s=noF?it.stores[bestIdx(it)]:cur(it),Q=QQ||PQ,FF=
 const age=it=>{const d=(Date.now()-new Date(it.refreshed||DATA.refreshed))/864e5;return `<span class="chip ${d<=2?"fresh":"aged"}">${d<1?"<1d":Math.floor(d)+"d"} old</span>`};
 function delta(it,s){if(!usd(s))return "";const o=it.stores.filter(x=>x!==s&&usd(x)).map(x=>x.price);if(!o.length)return "";const n=Math.min(...o),d=s.price-n;if(Math.abs(d)<.005)return '<span class="alt">= next store</span>';
  return d<0?`<span class="alt dl">▼ $${(-d).toFixed(2)} (${(-d/n*100).toFixed(0)}%) vs next</span>`:`<span class="alt dh">▲ $${d.toFixed(2)} vs cheapest alt</span>`}
-function partEl(it){const s=cur(it),c=document.createElement("div");c.className="part"+(it.optional?" optrow":"")+(it.inc?"":" off");const line=s.price!=null?s.price*it.q:null;
+function catOf(it){const n=it.name.toLowerCase();return /ring|led|neopixel|ws2812/.test(n)?"LED":/powerboost|charger|battery|lipo|solar|supply|18650|power/.test(n)?"POWER":/nano|arduino|esp32|raspberry|\bpi\b|f405|stack|controller/.test(n)?"MCU":/capacitor|resistor/.test(n)?"PASSIVE":/camera|cam\b|lens/.test(n)?"CAMERA":/radio|receiver|elrs|vtx|antenna/.test(n)?"RADIO":/frame|mount|case|servo|motor|prop|bracket|screw/.test(n)?"MECH":"MISC"}
+let BPQ="",BPC="",BPV=localStorage.getItem("bpv")||"list";
+function partEl(it){const s=cur(it),c=document.createElement("div");c.className="part bpr"+(it.optional?" optrow":"")+(it.inc?"":" off");c.dataset.k=(it.name+" "+s.store+" "+catOf(it)).toLowerCase();const line=s.price!=null?s.price*it.q:null;
  const alts=it.stores.filter(x=>x!==s&&x.price!=null).map(x=>`${x.store} ${fmt(x.price,x.currency)}${x.in_stock===false?" (out)":""}`).join(" · ");
- c.innerHTML=(s.image?`<img src="${s.image}" loading="lazy" alt="">`:'<div class="noimg">NO IMG</div>')+
- `<div><div class="nm">${it.name}</div><div class="sub">${amzWhy(it,s)}${chipStock(s)}${s.manual?`<span class="chip man">Manual ${s.manual}</span>`:'<span class="chip auto">Auto</span>'}${stale(s)?'<span class="chip out">Re-check (7d+)</span>':""}${it.optional?'<span class="chip opt">Optional</span>':""}${it.stores.filter(x=>x.price!=null).length<=1?'<span class="chip opt">Single-source</span>':""}${age(it)}</div><div>${delta(it,s)}</div>
- ${alts?`<div class="alt">Alt: ${alts}</div>`:""}${s.error?`<div class="err">${s.error} (see store page)</div>`:""}<div class="alt">Checked ${dt(it)}</div></div>
- <div class="rt"><span class="price">${fmt(s.price,s.currency)}</span><select data-sel="${it.id}">${it.stores.map((x,i)=>`<option value="${i}" ${i==it.sel?"selected":""}>${x.store} ${fmt(x.price,x.currency)}</option>`).join("")}</select>
- <span class="ctl"><label><input type="checkbox" ${it.inc?"checked":""} data-inc="${it.id}"> incl</label>Qty <input type="number" min="0" value="${it.q}" data-q="${it.id}"> <b class="mono">${fmt(line,s.currency)}</b></span>
- <a class="buy" href="${s.url}" target="_blank" rel="noopener">BUY ↗</a><button class="addb" data-addp="${it.id}" ${CART[it.id]?"disabled":""}>${CART[it.id]?"✓ In cart":"+ Cart"}</button></div>`;return c}
+ c.innerHTML=`<div class="th">${s.image?`<img src="${s.image}" loading="lazy" alt="">`:'<div class="noimg">NO IMG</div>'}</div>`+
+ `<div><div class="nm">${it.name}</div><div class="md">${s.store}${it.optional?" · optional":""}</div><span class="cc ${catOf(it)}">${catOf(it)}</span>${chipStock(s)}</div>
+ <div class="qn n"><input type="number" min="0" value="${it.q}" data-q="${it.id}" aria-label="Qty"></div><div class="un n">${fmt(s.price,s.currency)}</div><div class="sb n">${fmt(line,s.currency)}</div>
+ <div class="xx"><label><input type="checkbox" ${it.inc?"checked":""} data-inc="${it.id}"> incl</label><select data-sel="${it.id}">${it.stores.map((x,i)=>`<option value="${i}" ${i==it.sel?"selected":""}>${x.store} ${fmt(x.price,x.currency)}</option>`).join("")}</select>
+ <a class="buy" href="${s.url}" target="_blank" rel="noopener">BUY ↗</a><button class="addb" data-addp="${it.id}" ${CART[it.id]?"disabled":""}>${CART[it.id]?"✓ In cart":"+ Cart"}</button>
+ ${amzWhy(it,s)}${s.manual?`<span class="chip man">Manual ${s.manual}</span>`:'<span class="chip auto">Auto</span>'}${stale(s)?'<span class="chip out">Re-check (7d+)</span>':""}${age(it)}${delta(it,s)}
+ ${alts?`<div class="alt">Alt: ${alts}</div>`:""}${s.error?`<div class="err">${s.error} (see store page)</div>`:""}<div class="alt">Checked ${dt(it)}</div></div>`;return c}
+function bpFilter(p){p.querySelectorAll(".part.bpr").forEach(r=>{r.style.display=(!BPQ||r.dataset.k.includes(BPQ.toLowerCase()))&&(!BPC||r.dataset.k.includes(BPC.toLowerCase()))?"":"none"})}
 function bTot(b){let t=0,n=0,o=0,ot=0;DATA.items.filter(i=>BGN[i.group]===b).forEach(i=>{const s=i.stores[bestIdx(i)];if(i.optional){o++;if(usd(s))ot+=s.price*i.qty;return}n++;if(usd(s))t+=s.price*i.qty});return [t,n,o,ot]}
 function bInc(b){let t=0;DATA.items.filter(i=>BGN[i.group]===b&&i.inc).forEach(i=>{const s=cur(i);if(usd(s))t+=s.price*i.q});return t}
 let SELB=localStorage.getItem("selb")||"arcreactor";
@@ -206,11 +245,15 @@ function render(){
   for(const b in BNM){if(b!==SELB)continue;const its=DATA.items.filter(i=>BGN[i.group]===b);if(!its.length)continue;const [t,n,o,ot]=bTot(b);
   const old=its.map(i=>i.refreshed||DATA.refreshed).sort()[0];
   const sel=its.filter(i=>!i.optional),ins=sel.filter(i=>cur(i).in_stock===true).length,inc=its.filter(i=>i.inc).length;
-  const p=document.createElement("section");p.className="bflat";p.id="b-"+b;p.innerHTML=`<h2 class="bh">${BNM[b]}</h2>`;m.appendChild(p);
+  const p=document.createElement("section");p.className="bflat";p.id="b-"+b;const cats=[...new Set(its.map(catOf))];p.className="bflat"+(BPV==="grid"?" grid":"");p.innerHTML=`<h2 class="bh">${BNM[b]}</h2><div class="bpbar"><input type="search" id="bpq" placeholder="Search for parts" value="${BPQ.replace(/"/g,"&quot;")}"><select id="bpc"><option value="">Category: All ${its.length}</option>${cats.map(c=>`<option value="${c}" ${c===BPC?"selected":""}>${c} ${its.filter(i=>catOf(i)===c).length}</option>`).join("")}</select><span class="bpvt"><button data-bpv="list" class="${BPV==="list"?"on":""}" aria-label="List">☰</button><button data-bpv="grid" class="${BPV==="grid"?"on":""}" aria-label="Grid">▦</button></span></div>`;m.appendChild(p);
   for(const g of Object.keys(G).filter(g=>BGN[g]===b)){const li=its.filter(i=>i.group===g&&pass(i));if(!li.length)continue;if(Object.keys(G).filter(x=>BGN[x]===b).length>1){const h=document.createElement("h3");h.className="sg";h.textContent=G[g];p.appendChild(h)}
    const req=li.filter(i=>!i.optional),opt=li.filter(i=>i.optional);
-   if(req.length){const r=document.createElement("div");r.className="rows";req.forEach(i=>r.appendChild(partEl(i)));p.appendChild(r)}
-   if(opt.length){const h=document.createElement("h3");h.textContent="Optional · unchecked = not in total";h.style.cssText="margin:12px 0 6px;font:700 12px \"JetBrains Mono\",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--ac)";p.appendChild(h);const r=document.createElement("div");r.className="rows";opt.forEach(i=>r.appendChild(partEl(i)));p.appendChild(r)}}}}
+   {const hd=document.createElement("div");hd.className="bphd";hd.innerHTML='<span>PART</span><span class="n">QTY</span><span class="n">UNIT</span><span class="n">SUBTOTAL</span>';p.appendChild(hd)}
+   if(req.length){const r=document.createElement("div");r.className="rows bpwrap";req.forEach(i=>r.appendChild(partEl(i)));p.appendChild(r)}
+   if(opt.length){const h=document.createElement("h3");h.textContent="Optional · unchecked = not in total";h.style.cssText="margin:12px 0 6px;font:700 12px \"JetBrains Mono\",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--ac)";p.appendChild(h);const r=document.createElement("div");r.className="rows bpwrap";opt.forEach(i=>r.appendChild(partEl(i)));p.appendChild(r)}}
+  const ft=document.createElement("div");ft.className="bfoot";ft.innerHTML=`<span>TOTAL ESTIMATED COST<small>${inc} included · required $${t.toFixed(2)}</small></span><b>$${bInc(b).toFixed(2)}</b>`;p.appendChild(ft);bpFilter(p);
+  const q=p.querySelector("#bpq");q.oninput=()=>{BPQ=q.value;bpFilter(p)};const cs=p.querySelector("#bpc");cs.onchange=e=>{e.stopPropagation();BPC=cs.value;bpFilter(p)};
+  p.querySelectorAll("[data-bpv]").forEach(x=>x.onclick=()=>{BPV=x.dataset.bpv;localStorage.setItem("bpv",BPV);render()})}}
  else{const p=panel(flat?"Search <i>results</i>":"All <i>parts</i>",md==="asc"?"Price ↑":"Price ↓"),r=document.createElement("div");r.className="rows";
   [...DATA.items].filter(i=>pass(i)).sort((a,b)=>{const pa=cur(a).price??1e9,pb=cur(b).price??1e9;return md==="asc"?pa-pb:pb-pa}).forEach((i,n)=>{const e=partEl(i);if(n===0&&PQ.cheap)e.classList.add("top");r.appendChild(e)});p.appendChild(r)}
  const cnt=DATA.items.filter(i=>pass(i)).length;document.getElementById("qp").innerHTML=F.q?`<span class="lbl">Parsed</span>${PQ.chips.map(c=>`<span class="chip auto">${c}</span>`).join("")}<span>${cnt} result${cnt===1?"":"s"}${PQ.cheap&&cnt?" · cheapest highlighted":""}${cnt?"":" · nothing matched, loosen it"}</span>`:"";
@@ -359,6 +402,6 @@ showTab();jumpBuild();
 for(const id of ["fb","fs","fk","fm","q"])document.getElementById(id).addEventListener("change",e=>e.stopPropagation());
 document.getElementById("fx").onclick=()=>{for(const k in F)F[k]="";PQ=parseQ("");for(const id in map)document.getElementById(id).value="";render()};
 document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();document.getElementById("q").focus()}if(e.key==="Escape"&&document.getElementById("ben").classList.contains("open")){document.getElementById("benx").click();return}if(e.key==="Escape"){document.getElementById("fx").click();if(["bq","pq"].includes(document.activeElement.id)){document.activeElement.value="";renderBuildQ();renderPartQ()}}})}
-</script><script src="shared/hub.js?v=20261104-clean"></script>
-<script src="shared/links.js?v=20261104-clean"></script>
+</script><script src="shared/hub.js?v=20261104-bpshop"></script>
+<script src="shared/links.js?v=20261104-bpshop"></script>
 </body></html>

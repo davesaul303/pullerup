@@ -17,7 +17,7 @@
   function saveStepIndex(id, i){ localStorage.setItem(stepIndexKey(id), String(i)); }
   function loadViewMode(id){
     const v = localStorage.getItem(viewModeKey(id));
-    return (v === 'list' || v === 'one') ? v : 'one';
+    return (v === 'list' || v === 'one') ? v : 'list';
   }
   function saveViewMode(id, mode){ localStorage.setItem(viewModeKey(id), mode === 'list' ? 'list' : 'one'); }
 
@@ -49,6 +49,57 @@
     return list;
   }
 
+
+  /* ---- Blueprint-structure helpers (derived only from guide text) ---- */
+  const TOOLKW = [
+    [/solder/i, /solder|\btin\b|iron|joint/i, 't-red'],
+    [/cutter|snip/i, /\bcut|trim|snip|clip the/i, 't-warn'],
+    [/multimeter|meter/i, /multimeter|continuity|measure|meter/i, 't-ok'],
+    [/arduino ide|computer|laptop/i, /upload|\bide\b|library|sketch|serial monitor|install|code/i, 't-lime'],
+    [/glasses/i, /glasses|goggles/i, 't-mu'],
+    [/heat gun|lighter/i, /heat gun|lighter|shrink it|heat the/i, 't-red'],
+    [/strip/i, /strip/i, 't-warn'],
+    [/helping hand|clamp|vise/i, /helping hand|clamp|vise/i, 't-mu']
+  ];
+  const PARTKW = [
+    [/neopixel|\bring\b/i, /\bring\b|neopixel|pixel/i, 'LED'],
+    [/resistor/i, /resistor|ω|ohm/i, 'Passive'],
+    [/capacitor/i, /capacitor|µf|uf\b|cap\b/i, 'Passive'],
+    [/breadboard/i, /breadboard|jumper/i, 'Proto'],
+    [/proto shield|shield/i, /shield/i, 'Proto'],
+    [/usb cable/i, /\busb\b/i, 'Power'],
+    [/elegoo|uno/i, /\buno\b|elegoo/i, 'MCU'],
+    [/buzzer|piezo/i, /buzzer|piezo/i, 'Audio'],
+    [/ultrasonic|hc-sr04|sensor/i, /sensor|hc-sr04|ultrasonic|echo|trig/i, 'Sensor'],
+    [/servo/i, /servo/i, 'Motion'],
+    [/joystick/i, /joystick/i, 'Input'],
+    [/button/i, /button/i, 'Input'],
+    [/\bled\b/i, /\bled\b/i, 'LED'],
+    [/heat.?shrink/i, /shrink/i, 'Misc'],
+    [/wire/i, /\bwire\b/i, 'Wire']
+  ];
+  function stepText(st){ return [st.title,st.action,st.why,st.detail,st.warn,st.from,st.to].filter(Boolean).join(' '); }
+  function stepTools(guide, st){
+    const t = stepText(st), out = [];
+    (guide.tools||[]).forEach(tool => {
+      const k = TOOLKW.find(r => r[0].test(tool));
+      if(k && k[1].test(t)) out.push([tool, k[2]]);
+    });
+    return out;
+  }
+  function stepParts(guide, st){
+    const t = stepText(st), out = [];
+    (guide.parts||[]).forEach(part => {
+      if(/soldering iron/i.test(part)) return;
+      const k = PARTKW.find(r => r[0].test(part));
+      if(k && k[1].test(t) && out.length < 3) out.push([part, k[2]]);
+    });
+    return out;
+  }
+  function phaseName(t){ return String(t||'').replace(/^(part\s*)?\d+[a-z]?\s*[.:]\s*/i,''); }
+  function phaseIcon(t){ t=t.toLowerCase(); return /solder/.test(t)?'♨':/breadboard|wire|wiring|circuit/.test(t)?'⌁':/install|upload|library|code|sketch/.test(t)?'⌨':/test|check|tune|compare/.test(t)?'✓':/meet|what|why|start|glossary|safety/.test(t)?'◎':'▣'; }
+  function shortName(p){ return String(p).replace(/\s*\(.*?\)\s*/g,' ').replace(/^\d+\s*[×x]\s*/,'').trim(); }
+
   function renderTopProgress(guide, map, flat){
     const checks = flat.map(f => f.check);
     (guide.parts||[]).forEach((_,i) => checks.push('part-'+i));
@@ -57,6 +108,7 @@
     const pct = checks.length ? Math.round(done*100/checks.length) : 0;
     if($('bar')) $('bar').style.width = pct + '%';
     if($('pct')) $('pct').textContent = pct + '% · ' + done + '/' + checks.length;
+    if(window.__bpUpd) window.__bpUpd(map);
   }
 
   /* ---- Lightbox ---- */
@@ -318,6 +370,57 @@
     </div>`;
   }
 
+
+  const SHOP = { 'arc-reactor': '../?v=20261104-bpshop#b-arcreactor' };
+  function bpTabs(guide, flat){
+    const body = $('body'), top = document.querySelector('.guide-top'), toc = $('toc');
+    const walk = $('walk');
+    const hasWiring = guide.diagrams && Object.keys(guide.diagrams).length;
+    const tabs = [['info','Info'],['parts','Parts']].concat(hasWiring?[['wiring','Wiring']]:[]).concat([['instructions','Instructions']]);
+    const bar = document.createElement('nav'); bar.className = 'bp-tabs'; bar.setAttribute('role','tablist');
+    bar.innerHTML = tabs.map(([k,v]) => `<button type="button" role="tab" data-tab="${k}">${v}</button>`).join('');
+    top.parentNode.insertBefore(bar, body);
+    const pane = k => { const d = document.createElement('section'); d.className = 'bp-pane'; d.dataset.pane = k; body.appendChild(d); return d; };
+    const info = pane('info'), parts = pane('parts'), wiring = hasWiring ? pane('wiring') : null, ins = pane('instructions');
+    // INFO: existing intro callout + code/spec sections + specs
+    if(guide.specs && guide.specs.length) info.insertAdjacentHTML('beforeend', `<div class="bp-card"><div class="bp-card-h">Specs</div><div class="props">${guide.specs.map(r=>`<div class="prop"><b>${esc(r[0])}</b><span>${esc(r[1])}</span></div>`).join('')}</div></div>`);
+    [...body.children].forEach(el => { if(el.classList.contains('callout') || el.classList.contains('section')) info.appendChild(el); });
+    // PARTS: Blueprint-style table, priced on Pullerup
+    const shop = SHOP[guide.id] || guide.pullerup || '';
+    const prow = (guide.parts||[]).map(p => {
+      const m = String(p).match(/^(\d+)\s*[×x]\s*/); const q = m ? m[1] : '1';
+      const k = PARTKW.find(r => r[0].test(p)); const cat = k ? k[2] : (/iron|solder|cable|usb/i.test(p)?'Tool':'Misc');
+      const nm = String(p).replace(/^\d+\s*[×x]\s*/,''); const model = (nm.match(/\((.*?)\)/)||[])[1] || '';
+      return `<div class="bp-prow"><span class="bp-pth" aria-hidden="true">▣</span><span class="bp-pn"><b>${esc(nm.replace(/\s*\(.*?\)\s*/g,' ').trim())}</b>${model?`<em>${esc(model)}</em>`:''}<i class="bp-cat">${esc(cat.toUpperCase())}</i></span><span class="n">${esc(q)}</span><span class="n mu">${shop?'Pullerup':'—'}</span></div>`;
+    }).join('');
+    parts.innerHTML = `<div class="bp-ptable"><div class="bp-phd"><span>Part</span><span class="n">Qty</span><span class="n">Price</span></div>${prow}</div>
+      <div class="bp-pfoot"><span>Total estimated cost<small>${(guide.parts||[]).length} parts · live prices on Pullerup</small></span>${shop?`<a href="${esc(shop)}">Price on Pullerup ↗</a>`:'<b>—</b>'}</div>`;
+    // WIRING
+    if(wiring){ wiring.innerHTML = Object.keys(guide.diagrams).map(k => diagramHtml(guide, k)).join(''); bindLightbox(wiring); bindFarowtTargets(wiring, guide.tips || {}); }
+    // INSTRUCTIONS: strip + tools & assumptions + toc + walk
+    const assumptions = String(guide.beforeYouStart||'').split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
+    ins.insertAdjacentHTML('beforeend', `<div class="bp-strip"><b>Instructions</b><span id="bp-done">0/${flat.length} done</span></div>
+      <div class="bp-card bp-ta"><div class="bp-card-h">⚒ Tools &amp; Assumptions</div><div class="bp-ta-cols">
+        <div><div class="bp-sub">Tools</div><ul>${(guide.tools||[]).map(t=>{const k=TOOLKW.find(r=>r[0].test(t));return `<li><i class="bp-dot ${k?k[2]:'t-mu'}"></i>${esc(t)}</li>`;}).join('') || '<li>—</li>'}</ul></div>
+        <div><div class="bp-sub">Assumptions</div><ul class="dash">${assumptions.map(a=>`<li>${esc(a)}</li>`).join('') || '<li>—</li>'}</ul></div>
+      </div></div>`);
+    ins.appendChild(toc); ins.appendChild(walk);
+    window.__bpUpd = (map) => {
+      const d = flat.filter(f => map[f.check]).length; const el = $('bp-done'); if(el) el.textContent = `${d}/${flat.length} done`;
+      document.querySelectorAll('[data-phc]').forEach(c => { const id = c.dataset.phc; const ss = flat.filter(f => f.sec.id === id); c.textContent = ss.filter(f => map[f.check]).length + '/' + ss.length; });
+    };
+    window.__bpUpd(loadProgress(guide.id));
+    const params = new URLSearchParams(location.search);
+    function show(k){
+      bar.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === k ? 'true' : 'false'));
+      body.querySelectorAll('.bp-pane').forEach(p => p.hidden = p.dataset.pane !== k);
+      const u = new URL(location.href); if(k === 'instructions') u.searchParams.delete('tab'); else u.searchParams.set('tab', k); history.replaceState(null, '', u);
+    }
+    bar.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => show(b.dataset.tab));
+    const want = (params.get('tab')||'').toLowerCase();
+    show(tabs.some(t => t[0] === want) ? want : 'instructions');
+  }
+
   function renderGuide(guide){
     document.title = 'FUX · ' + guide.title;
     $('gtitle').textContent = guide.title;
@@ -367,7 +470,7 @@
         <span class="vt-label">Steps</span>
         <div class="vt-btns">
           <button type="button" class="vt-btn" id="view-one" aria-pressed="true">One at a time</button>
-          <button type="button" class="vt-btn" id="view-list" aria-pressed="false">Full list</button>
+          <button type="button" class="vt-btn" id="view-list" aria-pressed="false">Checklist</button>
         </div>
         <div class="vt-list-actions" id="list-actions" hidden>
           <button type="button" class="vt-mini" id="expand-all">Expand all</button>
@@ -552,52 +655,54 @@
         return;
       }
       let html = '';
-      let lastSec = null;
+      let lastSec = null, phaseNo = 0, stepNo = 0;
       flat.forEach((cur, i) => {
         const st = cur.st;
         const sec = cur.sec;
-        const n = i + 1;
         const done = !!map[cur.check];
         const action = st.action || st.title || 'Do this step';
         const why = st.why || st.detail || '';
         if(sec.id !== lastSec){
-          html += `<div class="list-sec-title" id="list-sec-${esc(sec.id)}">${esc(sec.title)}</div>`;
+          if(lastSec !== null) html += `</div>`;
+          phaseNo++; stepNo = 0;
+          const secSteps = flat.filter(f => f.sec.id === sec.id);
+          const secDone = secSteps.filter(f => map[f.check]).length;
+          html += `<div class="bp-phase" data-phase="${esc(sec.id)}"><div class="bp-ph-head" id="list-sec-${esc(sec.id)}">
+            <span class="bp-ph-n">${phaseNo}.</span><span class="bp-ph-ic" aria-hidden="true">${phaseIcon(sec.title)}</span>
+            <span class="bp-ph-t">${esc(phaseName(sec.title))}</span><span class="bp-ph-c" data-phc="${esc(sec.id)}">${secDone}/${secSteps.length}</span></div>`;
           if(cur.localIdx === 0){
             const extras = sectionExtrasHtml(guide, sec);
-            if(extras) html += `<div class="list-sec-extras">${extras}</div>`;
+            if(extras) html += `<details class="bp-ph-notes"><summary>Phase notes ›</summary><div class="list-sec-extras">${extras}</div></details>`;
           }
           lastSec = sec.id;
         }
-        html += `<details class="list-row${done?' is-done':''}" data-step="${i}" id="list-step-${i}">
-          <summary class="lr-summary">
-            <span class="lr-num" aria-hidden="true">${n}</span>
-            <span class="lr-main">
-              <span class="lr-action">${esc(action)}</span>
-              ${pinChips(st)}
-            </span>
-            <label class="lr-done" title="Done">
-              <input type="checkbox" data-check="${esc(cur.check)}" ${done?'checked':''}>
-              <span class="box" aria-hidden="true"></span>
-              <span class="txt">Done ✓</span>
-            </label>
-            <span class="lr-chev" aria-hidden="true"></span>
-          </summary>
-          <div class="lr-body">
+        stepNo++;
+        const tools = stepTools(guide, st), parts = stepParts(guide, st);
+        html += `<div class="list-row bp-step${done?' is-done':''}" data-step="${i}" id="list-step-${i}">
+          <div class="bp-st-top">
+            <span class="bp-st-n">${phaseNo}.${stepNo}</span>
+            <label class="lr-done bp-circ" title="Done"><input type="checkbox" data-check="${esc(cur.check)}" ${done?'checked':''}><span class="box" aria-hidden="true"></span></label>
+            <span class="lr-action">${esc(action)}</span>
+          </div>
+          ${tools.length ? `<div class="bp-tools-row">${tools.map(t=>`<span class="bp-tchip ${t[1]}">${esc(t[0].replace(/\s*[~(+].*$/,''))}</span>`).join('')}</div>` : ''}
+          ${parts.length ? `<div class="bp-parts-row">${parts.map(p=>`<div class="bp-pcard"><span class="bp-pth" aria-hidden="true">▣</span><span><b>${esc(shortName(p[0]))}</b><em>${esc(p[1])}</em></span></div>`).join('')}</div>` : ''}
+          <details class="bp-det"><summary>View details ›</summary><div class="lr-body">
+            ${pinChips(st)}
             ${st.warn ? `<div class="warn-inline"><b>Watch out</b>${esc(st.warn)}</div>` : ''}
             ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
             ${st.table ? tableHtml(st.table) : ''}
             ${why ? `<div class="lr-why"><b>Why?</b><p>${esc(why)}</p></div>` : ''}
             <button type="button" class="lr-focus" data-focus="${i}">Open in One at a time</button>
-          </div>
-        </details>`;
+          </div></details>
+        </div>`;
       });
+      if(lastSec !== null) html += `</div>`;
       listPane.innerHTML = html;
 
       listPane.querySelectorAll('.list-row').forEach(row => {
         const inp = row.querySelector('.lr-done input[data-check]');
         const key = inp && inp.getAttribute('data-check');
         bindDoneInput(inp, key, row);
-        // prevent summary toggle when interacting with done
         const doneLab = row.querySelector('.lr-done');
         if(doneLab){
           doneLab.addEventListener('click', e => e.stopPropagation());
@@ -637,7 +742,7 @@
     function scrollToListStep(i){
       const el = document.getElementById('list-step-' + i);
       if(el){
-        el.open = true;
+        const d = el.querySelector('details.bp-det'); if(d) d.open = true;
         el.scrollIntoView({behavior: reduceMotion()?'auto':'smooth', block:'start'});
       } else scrollWalk();
     }
@@ -645,10 +750,10 @@
     $('view-one').onclick = () => applyMode('one');
     $('view-list').onclick = () => applyMode('list');
     $('expand-all').onclick = () => {
-      listPane.querySelectorAll('details.list-row').forEach(d => { d.open = true; });
+      listPane.querySelectorAll('details.bp-det').forEach(d => { d.open = true; });
     };
     $('collapse-all').onclick = () => {
-      listPane.querySelectorAll('details.list-row').forEach(d => { d.open = false; });
+      listPane.querySelectorAll('details.bp-det').forEach(d => { d.open = false; });
     };
 
     // TOC jump handlers
@@ -679,6 +784,8 @@
       if(e.key === 'ArrowRight' || e.key === 'n'){ e.preventDefault(); $('nav-next') && $('nav-next').click(); }
       if(e.key === 'ArrowLeft' || e.key === 'b'){ e.preventDefault(); $('nav-back') && $('nav-back').click(); }
     });
+
+    bpTabs(guide, flat);
 
     $('reset').onclick = () => {
       if(!confirm('Clear all progress for this guide?')) return;
