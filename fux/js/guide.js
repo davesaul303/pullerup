@@ -371,7 +371,7 @@
   }
 
 
-  const SHOP = { 'arc-reactor': '../?v=20261104-bpshop#b-arcreactor' };
+  const SHOP = { 'arc-reactor': '../?v=20261105-owned#b-arcreactor' };
   function bpTabs(guide, flat){
     const body = $('body'), top = document.querySelector('.guide-top'), toc = $('toc');
     const walk = $('walk');
