@@ -5,7 +5,7 @@
 
   function storageKey(id){ return 'fux-progress:' + id; }
   function stepIndexKey(id){ return 'fux-step:' + id; }
-  function viewModeKey(id){ return 'fux-view2:' + id; }
+  function viewModeKey(id){ return 'fux-view3:' + id; }
   function loadProgress(id){
     try{ return JSON.parse(localStorage.getItem(storageKey(id))||'{}')||{}; }catch(e){ return {}; }
   }
@@ -17,7 +17,7 @@
   function saveStepIndex(id, i){ localStorage.setItem(stepIndexKey(id), String(i)); }
   function loadViewMode(id){
     const v = localStorage.getItem(viewModeKey(id));
-    return (v === 'list' || v === 'one') ? v : 'one';
+    return (v === 'list' || v === 'one') ? v : 'list';
   }
   function saveViewMode(id, mode){ localStorage.setItem(viewModeKey(id), mode === 'list' ? 'list' : 'one'); }
 
@@ -79,8 +79,21 @@
     [/wire/i, /\bwire\b/i, 'Wire']
   ];
   function stepText(st){ return [st.title,st.action,st.why,st.detail,st.warn,st.from,st.to].filter(Boolean).join(' '); }
+  function chipText(st){ return [st.title,st.action,st.warn,st.from,st.to].filter(Boolean).join(' '); }
+  function detailHtml(st){
+    const raw = String(st.detail||'').trim();
+    if(!raw) return '';
+    const lines = raw.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+    const numbered = lines.every(l => /^\d+[.)]\s+/.test(l));
+    if(numbered){
+      return `<ol class="bp-steps-ol">` + lines.map(l => `<li>${esc(l.replace(/^\d+[.)]\s+/, ''))}</li>`).join('') + `</ol>`;
+    }
+    return `<div class="bp-steps-p">` + lines.map(l => `<p>${esc(l)}</p>`).join('') + `</div>`;
+  }
+  function shortTitle(st){ return st.title || st.action || 'Do this step'; }
+
   function stepTools(guide, st){
-    const t = stepText(st), out = [];
+    const t = chipText(st), out = [];
     (guide.tools||[]).forEach(tool => {
       const k = TOOLKW.find(r => r[0].test(tool));
       if(k && k[1].test(t)) out.push([tool, k[2]]);
@@ -88,7 +101,7 @@
     return out;
   }
   function stepParts(guide, st){
-    const t = stepText(st), out = [];
+    const t = chipText(st), out = [];
     (guide.parts||[]).forEach(part => {
       if(/soldering iron/i.test(part)) return;
       const k = PARTKW.find(r => r[0].test(part));
@@ -371,21 +384,22 @@
   }
 
 
-  const SHOP = { 'arc-reactor': '../?v=20261105-owned#b-arcreactor' };
+  const SHOP = { 'arc-reactor': '../?v=20261106-bp#b-arcreactor' };
   function bpTabs(guide, flat){
     const body = $('body'), top = document.querySelector('.guide-top'), toc = $('toc');
     const walk = $('walk');
     const hasWiring = guide.diagrams && Object.keys(guide.diagrams).length;
+    const ICO = {info:'☰',parts:'▦',wiring:'⌁',instructions:'☰'};
     const tabs = [['info','Info'],['parts','Parts']].concat(hasWiring?[['wiring','Wiring']]:[]).concat([['instructions','Instructions']]);
     const bar = document.createElement('nav'); bar.className = 'bp-tabs'; bar.setAttribute('role','tablist');
-    bar.innerHTML = tabs.map(([k,v]) => `<button type="button" role="tab" data-tab="${k}">${v}</button>`).join('');
+    bar.innerHTML = tabs.map(([k,v]) => `<button type="button" role="tab" data-tab="${k}"><i aria-hidden="true">${ICO[k]||'·'}</i><span>${v}</span></button>`).join('');
     top.parentNode.insertBefore(bar, body);
     const pane = k => { const d = document.createElement('section'); d.className = 'bp-pane'; d.dataset.pane = k; body.appendChild(d); return d; };
     const info = pane('info'), parts = pane('parts'), wiring = hasWiring ? pane('wiring') : null, ins = pane('instructions');
-    // INFO: existing intro callout + code/spec sections + specs
+    // INFO
     if(guide.specs && guide.specs.length) info.insertAdjacentHTML('beforeend', `<div class="bp-card"><div class="bp-card-h">Specs</div><div class="props">${guide.specs.map(r=>`<div class="prop"><b>${esc(r[0])}</b><span>${esc(r[1])}</span></div>`).join('')}</div></div>`);
     [...body.children].forEach(el => { if(el.classList.contains('callout') || el.classList.contains('section')) info.appendChild(el); });
-    // PARTS: Blueprint-style table, priced on Pullerup
+    // PARTS
     const shop = SHOP[guide.id] || guide.pullerup || '';
     const prow = (guide.parts||[]).map(p => {
       const m = String(p).match(/^(\d+)\s*[×x]\s*/); const q = m ? m[1] : '1';
@@ -397,8 +411,13 @@
       <div class="bp-pfoot"><span>Total estimated cost<small>${(guide.parts||[]).length} parts · live prices on Pullerup</small></span>${shop?`<a href="${esc(shop)}">Price on Pullerup ↗</a>`:'<b>—</b>'}</div>`;
     // WIRING
     if(wiring){ wiring.innerHTML = Object.keys(guide.diagrams).map(k => diagramHtml(guide, k)).join(''); bindLightbox(wiring); bindFarowtTargets(wiring, guide.tips || {}); }
-    // INSTRUCTIONS: simple strip + one-step walk (Tools & Assumptions / TOC only in full list)
-    ins.insertAdjacentHTML('beforeend', `<div class="bp-strip"><b>Instructions</b><span id="bp-done">0/${flat.length} done</span></div>`);
+    // INSTRUCTIONS: Blueprint strip + Tools & Assumptions + walk (phase list default)
+    const assumptions = String(guide.beforeYouStart||'').split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
+    ins.insertAdjacentHTML('beforeend', `<div class="bp-strip"><b>Instructions</b><span id="bp-done">0/${flat.length} done</span></div>
+      <div class="bp-card bp-ta"><div class="bp-card-h">⚒ Tools &amp; Assumptions</div><div class="bp-ta-cols">
+        <div><div class="bp-sub">Tools</div><ul>${(guide.tools||[]).map(t=>{const k=TOOLKW.find(r=>r[0].test(t));return `<li><i class="bp-dot ${k?k[2]:'t-mu'}"></i>${esc(t)}</li>`;}).join('') || '<li>—</li>'}</ul></div>
+        <div><div class="bp-sub">Assumptions</div><ul class="dash">${assumptions.map(a=>`<li>${esc(a)}</li>`).join('') || '<li>—</li>'}</ul></div>
+      </div></div>`);
     ins.appendChild(walk);
     window.__bpUpd = (map) => {
       const d = flat.filter(f => map[f.check]).length; const el = $('bp-done'); if(el) el.textContent = `${d}/${flat.length} done`;
@@ -455,19 +474,19 @@
       }
     });
 
-    html += `<div id="walk" class="walk walk-simple">
-      <div class="simple-bar">
-        <button type="button" class="simple-list-link" id="view-list">Show full list</button>
-        <button type="button" class="simple-list-link" id="view-one" hidden>← Back to one step</button>
-        <span class="vt-list-actions" id="list-actions" hidden>
+    html += `<div id="walk" class="walk walk-bp">
+      <div class="simple-bar bp-modebar">
+        <button type="button" class="simple-list-link" id="view-one">Focus one step</button>
+        <button type="button" class="simple-list-link" id="view-list" hidden>← Back to full guide</button>
+        <span class="vt-list-actions" id="list-actions">
           <button type="button" class="vt-mini" id="expand-all">Expand all</button>
           <button type="button" class="vt-mini" id="collapse-all">Collapse all</button>
         </span>
       </div>
-      <div id="view-one-pane">
+      <div id="view-list-pane" class="list-pane"></div>
+      <div id="view-one-pane" hidden>
         <div class="step-card" id="step-card"></div>
       </div>
-      <div id="view-list-pane" class="list-pane" hidden></div>
     </div>`;
 
     $('body').innerHTML = html;
@@ -541,7 +560,7 @@
       const done = !!map[cur.check];
       const title = st.title || st.action || 'Do this step';
       const body = (st.action && st.title && st.action !== st.title) ? st.action : '';
-      const why = st.why || st.detail || '';
+      const why = st.why || '';
 
       card.className = 'step-card step-simple' + (done ? ' is-done' : '');
       card.innerHTML = `
@@ -554,6 +573,7 @@
         </div>
         <h2 class="sc-action">${esc(title)}</h2>
         ${body ? `<p class="sc-body">${esc(body)}</p>` : ''}
+        ${detailHtml(st)}
         ${pinChips(st)}
         ${st.warn ? `<div class="warn-inline"><b>Watch out</b>${esc(st.warn)}</div>` : ''}
         ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
@@ -597,31 +617,26 @@
         listPane.innerHTML = `<div class="step-empty">No steps in this guide yet.</div>`;
         return;
       }
-      const assumptions = String(guide.beforeYouStart||'').split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
-      let html = `<div class="bp-card bp-ta"><div class="bp-card-h">⚒ Tools &amp; Assumptions</div><div class="bp-ta-cols">
-        <div><div class="bp-sub">Tools</div><ul>${(guide.tools||[]).map(t=>{const k=TOOLKW.find(r=>r[0].test(t));return `<li><i class="bp-dot ${k?k[2]:'t-mu'}"></i>${esc(t)}</li>`;}).join('') || '<li>—</li>'}</ul></div>
-        <div><div class="bp-sub">Assumptions</div><ul class="dash">${assumptions.map(a=>`<li>${esc(a)}</li>`).join('') || '<li>—</li>'}</ul></div>
-      </div></div>
-      <nav class="toc list-toc">${(guide.sections||[]).map(s => {
-        const first = flat.findIndex(f => f.sec.id === s.id);
-        if(first < 0) return '';
-        return `<a href="#list-step-${first}" data-jump="${first}">${esc(s.title)}</a>`;
-      }).join('')}</nav>`;
+      let html = '';
       let lastSec = null, phaseNo = 0, stepNo = 0;
       flat.forEach((cur, i) => {
         const st = cur.st;
         const sec = cur.sec;
         const done = !!map[cur.check];
-        const action = st.action || st.title || 'Do this step';
-        const why = st.why || st.detail || '';
+        const title = shortTitle(st);
+        const blurb = (st.action && st.title && st.action !== st.title) ? st.action : '';
+        const why = st.why || '';
         if(sec.id !== lastSec){
           if(lastSec !== null) html += `</div>`;
           phaseNo++; stepNo = 0;
           const secSteps = flat.filter(f => f.sec.id === sec.id);
           const secDone = secSteps.filter(f => map[f.check]).length;
+          const pct = secSteps.length ? Math.round(secDone*100/secSteps.length) : 0;
           html += `<div class="bp-phase" data-phase="${esc(sec.id)}"><div class="bp-ph-head" id="list-sec-${esc(sec.id)}">
             <span class="bp-ph-n">${phaseNo}.</span><span class="bp-ph-ic" aria-hidden="true">${phaseIcon(sec.title)}</span>
-            <span class="bp-ph-t">${esc(phaseName(sec.title))}</span><span class="bp-ph-c" data-phc="${esc(sec.id)}">${secDone}/${secSteps.length}</span></div>`;
+            <span class="bp-ph-t">${esc(phaseName(sec.title))}</span>
+            <span class="bp-ph-c" data-phc="${esc(sec.id)}">${secDone}/${secSteps.length}</span>
+            <span class="bp-ph-ring" aria-hidden="true" style="--p:${pct}"></span></div>`;
           if(cur.localIdx === 0){
             const extras = sectionExtrasHtml(guide, sec);
             if(extras) html += `<details class="bp-ph-notes"><summary>Phase notes ›</summary><div class="list-sec-extras">${extras}</div></details>`;
@@ -634,17 +649,18 @@
           <div class="bp-st-top">
             <span class="bp-st-n">${phaseNo}.${stepNo}</span>
             <label class="lr-done bp-circ" title="Done"><input type="checkbox" data-check="${esc(cur.check)}" ${done?'checked':''}><span class="box" aria-hidden="true"></span></label>
-            <span class="lr-action">${esc(action)}</span>
+            <div class="bp-st-copy"><span class="lr-action">${esc(title)}</span>${blurb?`<span class="lr-blurb">${esc(blurb)}</span>`:''}</div>
           </div>
           ${tools.length ? `<div class="bp-tools-row">${tools.map(t=>`<span class="bp-tchip ${t[1]}">${esc(t[0].replace(/\s*[~(+].*$/,''))}</span>`).join('')}</div>` : ''}
           ${parts.length ? `<div class="bp-parts-row">${parts.map(p=>`<div class="bp-pcard"><span class="bp-pth" aria-hidden="true">▣</span><span><b>${esc(shortName(p[0]))}</b><em>${esc(p[1])}</em></span></div>`).join('')}</div>` : ''}
           <details class="bp-det"><summary>View details ›</summary><div class="lr-body">
+            ${detailHtml(st)}
             ${pinChips(st)}
             ${st.warn ? `<div class="warn-inline"><b>Watch out</b>${esc(st.warn)}</div>` : ''}
             ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
             ${st.table ? tableHtml(st.table) : ''}
             ${why ? `<div class="lr-why"><b>Why?</b><p>${esc(why)}</p></div>` : ''}
-            <button type="button" class="lr-focus" data-focus="${i}">Open in One at a time</button>
+            <button type="button" class="lr-focus" data-focus="${i}">Focus this step</button>
           </div></details>
         </div>`;
       });
