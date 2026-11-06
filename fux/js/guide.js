@@ -5,7 +5,7 @@
 
   function storageKey(id){ return 'fux-progress:' + id; }
   function stepIndexKey(id){ return 'fux-step:' + id; }
-  function viewModeKey(id){ return 'fux-view:' + id; }
+  function viewModeKey(id){ return 'fux-view2:' + id; }
   function loadProgress(id){
     try{ return JSON.parse(localStorage.getItem(storageKey(id))||'{}')||{}; }catch(e){ return {}; }
   }
@@ -17,7 +17,7 @@
   function saveStepIndex(id, i){ localStorage.setItem(stepIndexKey(id), String(i)); }
   function loadViewMode(id){
     const v = localStorage.getItem(viewModeKey(id));
-    return (v === 'list' || v === 'one') ? v : 'list';
+    return (v === 'list' || v === 'one') ? v : 'one';
   }
   function saveViewMode(id, mode){ localStorage.setItem(viewModeKey(id), mode === 'list' ? 'list' : 'one'); }
 
@@ -397,14 +397,9 @@
       <div class="bp-pfoot"><span>Total estimated cost<small>${(guide.parts||[]).length} parts · live prices on Pullerup</small></span>${shop?`<a href="${esc(shop)}">Price on Pullerup ↗</a>`:'<b>—</b>'}</div>`;
     // WIRING
     if(wiring){ wiring.innerHTML = Object.keys(guide.diagrams).map(k => diagramHtml(guide, k)).join(''); bindLightbox(wiring); bindFarowtTargets(wiring, guide.tips || {}); }
-    // INSTRUCTIONS: strip + tools & assumptions + toc + walk
-    const assumptions = String(guide.beforeYouStart||'').split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
-    ins.insertAdjacentHTML('beforeend', `<div class="bp-strip"><b>Instructions</b><span id="bp-done">0/${flat.length} done</span></div>
-      <div class="bp-card bp-ta"><div class="bp-card-h">⚒ Tools &amp; Assumptions</div><div class="bp-ta-cols">
-        <div><div class="bp-sub">Tools</div><ul>${(guide.tools||[]).map(t=>{const k=TOOLKW.find(r=>r[0].test(t));return `<li><i class="bp-dot ${k?k[2]:'t-mu'}"></i>${esc(t)}</li>`;}).join('') || '<li>—</li>'}</ul></div>
-        <div><div class="bp-sub">Assumptions</div><ul class="dash">${assumptions.map(a=>`<li>${esc(a)}</li>`).join('') || '<li>—</li>'}</ul></div>
-      </div></div>`);
-    ins.appendChild(toc); ins.appendChild(walk);
+    // INSTRUCTIONS: simple strip + one-step walk (Tools & Assumptions / TOC only in full list)
+    ins.insertAdjacentHTML('beforeend', `<div class="bp-strip"><b>Instructions</b><span id="bp-done">0/${flat.length} done</span></div>`);
+    ins.appendChild(walk);
     window.__bpUpd = (map) => {
       const d = flat.filter(f => map[f.check]).length; const el = $('bp-done'); if(el) el.textContent = `${d}/${flat.length} done`;
       document.querySelectorAll('[data-phc]').forEach(c => { const id = c.dataset.phc; const ss = flat.filter(f => f.sec.id === id); c.textContent = ss.filter(f => map[f.check]).length + '/' + ss.length; });
@@ -444,13 +439,8 @@
       ? Math.min(Math.max(stepParam - 1, 0), total - 1)
       : Math.min(loadStepIndex(guide.id), total - 1);
 
-    // TOC jumps to first step of section
-    $('toc').innerHTML = (guide.sections||[]).map(s => {
-      const first = flat.findIndex(f => f.sec.id === s.id);
-      if(first < 0 && !s.showCode) return '';
-      const jump = first >= 0 ? first : 0;
-      return `<a href="#walk" data-jump="${jump}">${esc(s.title)}</a>`;
-    }).join('');
+    // Top TOC hidden in simple Instructions; full list has its own jump links
+    $('toc').innerHTML = '';
 
     let html = '';
     if(guide.beforeYouStart){
@@ -465,20 +455,16 @@
       }
     });
 
-    html += `<div id="walk" class="walk">
-      <div class="view-toggle" role="group" aria-label="Step view">
-        <span class="vt-label">Steps</span>
-        <div class="vt-btns">
-          <button type="button" class="vt-btn" id="view-one" aria-pressed="true">One at a time</button>
-          <button type="button" class="vt-btn" id="view-list" aria-pressed="false">Checklist</button>
-        </div>
-        <div class="vt-list-actions" id="list-actions" hidden>
+    html += `<div id="walk" class="walk walk-simple">
+      <div class="simple-bar">
+        <button type="button" class="simple-list-link" id="view-list">Show full list</button>
+        <button type="button" class="simple-list-link" id="view-one" hidden>← Back to one step</button>
+        <span class="vt-list-actions" id="list-actions" hidden>
           <button type="button" class="vt-mini" id="expand-all">Expand all</button>
           <button type="button" class="vt-mini" id="collapse-all">Collapse all</button>
-        </div>
+        </span>
       </div>
       <div id="view-one-pane">
-        <div class="walk-rail" id="walk-rail"></div>
         <div class="step-card" id="step-card"></div>
       </div>
       <div id="view-list-pane" class="list-pane" hidden></div>
@@ -487,7 +473,7 @@
     $('body').innerHTML = html;
 
     const card = $('step-card');
-    const rail = $('walk-rail');
+    const rail = null;
     const onePane = $('view-one-pane');
     const listPane = $('view-list-pane');
     const listActions = $('list-actions');
@@ -499,10 +485,8 @@
       const oneBtn = $('view-one');
       const listBtn = $('view-list');
       if(!oneBtn || !listBtn) return;
-      oneBtn.classList.toggle('on', mode === 'one');
-      listBtn.classList.toggle('on', mode === 'list');
-      oneBtn.setAttribute('aria-pressed', mode === 'one' ? 'true' : 'false');
-      listBtn.setAttribute('aria-pressed', mode === 'list' ? 'true' : 'false');
+      listBtn.hidden = mode !== 'one';
+      oneBtn.hidden = mode !== 'list';
       if(onePane) onePane.hidden = mode !== 'one';
       if(listPane) listPane.hidden = mode !== 'list';
       if(listActions) listActions.hidden = mode !== 'list';
@@ -552,53 +536,29 @@
       saveStepIndex(guide.id, idx);
       const cur = flat[idx];
       const st = cur.st;
-      const sec = cur.sec;
       const n = idx + 1;
       const pct = Math.round((n / flat.length) * 100);
       const done = !!map[cur.check];
-      const action = st.action || st.title || 'Do this step';
+      const title = st.title || st.action || 'Do this step';
+      const body = (st.action && st.title && st.action !== st.title) ? st.action : '';
       const why = st.why || st.detail || '';
 
-      const windowStart = Math.max(0, idx - 2);
-      const windowEnd = Math.min(flat.length, idx + 5);
-      let railHtml = `<div class="rail-label">Jump</div><div class="rail-list">`;
-      for(let i = 0; i < flat.length; i++){
-        if(i < windowStart || i >= windowEnd){
-          if(i === windowStart - 1 || i === windowEnd){
-            railHtml += `<button type="button" class="rail-dot more" data-go="${i}" aria-label="More steps">…</button>`;
-          }
-          continue;
-        }
-        const f = flat[i];
-        const isOn = i === idx;
-        const isDone = !!map[f.check];
-        railHtml += `<button type="button" class="rail-dot${isOn?' on':''}${isDone?' did':''}" data-go="${i}" title="${esc(f.st.action||f.st.title||'')}">
-          <span class="rn">${i+1}</span>
-          <span class="rt">${esc((f.st.action||f.st.title||'').slice(0,42))}</span>
-        </button>`;
-      }
-      railHtml += `</div>`;
-      rail.innerHTML = railHtml;
-
-      const extras = (cur.localIdx === 0) ? sectionExtrasHtml(guide, sec) : '';
-
-      card.className = 'step-card' + (done ? ' is-done' : '');
+      card.className = 'step-card step-simple' + (done ? ' is-done' : '');
       card.innerHTML = `
         <div class="sc-head">
           <div class="sc-num" aria-hidden="true">${n}</div>
           <div class="sc-meta">
-            <div class="sc-section">${esc(sec.title)}</div>
             <div class="sc-progress-label">Step <b>${n}</b> of <b>${flat.length}</b></div>
             <div class="sc-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
           </div>
         </div>
-        ${extras ? `<div class="sc-extras">${extras}</div>` : ''}
-        <h2 class="sc-action">${esc(action)}</h2>
+        <h2 class="sc-action">${esc(title)}</h2>
+        ${body ? `<p class="sc-body">${esc(body)}</p>` : ''}
         ${pinChips(st)}
         ${st.warn ? `<div class="warn-inline"><b>Watch out</b>${esc(st.warn)}</div>` : ''}
         ${st.diagram ? diagramHtml(guide, st.diagram) : ''}
         ${st.table ? tableHtml(st.table) : ''}
-        ${why ? `<details class="sc-why"><summary>Why? <span>(tap to open)</span></summary><p>${esc(why)}</p></details>` : ''}
+        ${why ? `<p class="sc-body sc-more">${esc(why)}</p>` : ''}
         <label class="sc-done">
           <input type="checkbox" data-check="${esc(cur.check)}" ${done?'checked':''}>
           <span class="box" aria-hidden="true"></span>
@@ -612,7 +572,6 @@
 
       const inp = card.querySelector('.sc-done input[data-check]');
       bindDoneInput(inp, cur.check, card);
-      bindExtraChecks(card, map);
 
       const back = $('nav-back');
       const next = $('nav-next');
@@ -625,27 +584,11 @@
         }
       };
 
-      rail.querySelectorAll('[data-go]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          idx = parseInt(btn.getAttribute('data-go'), 10) || 0;
-          paintOne();
-          scrollWalk();
-        });
-      });
-
       bindLightbox(card);
       bindFarowtTargets(card, guide.tips || {});
     }
 
-    function paintRailOnly(map){
-      if(!rail) return;
-      rail.querySelectorAll('.rail-dot[data-go]').forEach(btn => {
-        const i = parseInt(btn.getAttribute('data-go'), 10);
-        if(!Number.isFinite(i) || !flat[i]) return;
-        btn.classList.toggle('did', !!map[flat[i].check]);
-        btn.classList.toggle('on', i === idx);
-      });
-    }
+    function paintRailOnly(){ /* jump rail removed from simple one-step view */ }
 
     function paintList(){
       const map = loadProgress(guide.id);
@@ -654,7 +597,16 @@
         listPane.innerHTML = `<div class="step-empty">No steps in this guide yet.</div>`;
         return;
       }
-      let html = '';
+      const assumptions = String(guide.beforeYouStart||'').split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
+      let html = `<div class="bp-card bp-ta"><div class="bp-card-h">⚒ Tools &amp; Assumptions</div><div class="bp-ta-cols">
+        <div><div class="bp-sub">Tools</div><ul>${(guide.tools||[]).map(t=>{const k=TOOLKW.find(r=>r[0].test(t));return `<li><i class="bp-dot ${k?k[2]:'t-mu'}"></i>${esc(t)}</li>`;}).join('') || '<li>—</li>'}</ul></div>
+        <div><div class="bp-sub">Assumptions</div><ul class="dash">${assumptions.map(a=>`<li>${esc(a)}</li>`).join('') || '<li>—</li>'}</ul></div>
+      </div></div>
+      <nav class="toc list-toc">${(guide.sections||[]).map(s => {
+        const first = flat.findIndex(f => f.sec.id === s.id);
+        if(first < 0) return '';
+        return `<a href="#list-step-${first}" data-jump="${first}">${esc(s.title)}</a>`;
+      }).join('')}</nav>`;
       let lastSec = null, phaseNo = 0, stepNo = 0;
       flat.forEach((cur, i) => {
         const st = cur.st;
@@ -721,6 +673,13 @@
           setToggleUI();
           paintOne();
           scrollWalk();
+        });
+      });
+      listPane.querySelectorAll('[data-jump]').forEach(a => {
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          const i = parseInt(a.getAttribute('data-jump'), 10) || 0;
+          scrollToListStep(i);
         });
       });
     }
