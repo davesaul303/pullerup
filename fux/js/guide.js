@@ -17,7 +17,7 @@
   function saveStepIndex(id, i){ localStorage.setItem(stepIndexKey(id), String(i)); }
   function loadViewMode(id){
     const v = localStorage.getItem(viewModeKey(id));
-    return (v === 'list' || v === 'one') ? v : 'list';
+    return (v === 'list' || v === 'one') ? v : 'one';
   }
   function saveViewMode(id, mode){ localStorage.setItem(viewModeKey(id), mode === 'list' ? 'list' : 'one'); }
 
