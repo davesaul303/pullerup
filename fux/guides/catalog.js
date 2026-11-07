@@ -1,5 +1,15 @@
 window.FUX_CATALOG = [
   {
+    id: "led-blinker-shield",
+    title: "LED Blinker Shield",
+    summary: "Solder 2 LEDs on your blue shield and make them flash red-blue. Real soldering practice, $0 — all parts owned.",
+    category: "Electronics",
+    difficulty: "Beginner",
+    time: "45–75 min",
+    partsCount: 7,
+    keywords: ["led","blink","solder","soldering","proto shield","arduino","beginner","practice"]
+  },
+  {
     id: "door-alarm-shield",
     title: "Door Alarm Shield",
     summary: "Kid-clear ultrasonic door alarm. Realistic Elegoo art, one wire per step, uh-oh checks, Farowt helper.",
